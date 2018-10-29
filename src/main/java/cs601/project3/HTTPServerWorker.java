@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,8 +18,9 @@ public class HTTPServerWorker implements Runnable{
 	}
 	
 	public void run() {
-		try {
+		try (
 			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+		){
 			String responseHeader = "HTTP/1.0 200 OK\n" +
 					"\r\n";
 			String page = "<html> " + 
@@ -27,11 +29,22 @@ public class HTTPServerWorker implements Runnable{
 					"</html>";
 			writer.write(responseHeader);
 			writer.write(page);
-			writer.close();
+			writer.flush();
 			socket.close();
 			System.out.println("Done");
 		} catch (IOException e) {
 			System.out.println("error");
 		}
 	}
+	
+	public void shutdown() {
+		try {
+//			writer.close();
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
