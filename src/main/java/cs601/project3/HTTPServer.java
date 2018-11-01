@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,7 @@ public class HTTPServer{
 	private ServerSocket server;
 	private ExecutorService pool;
 	private volatile boolean running;
+	private HashMap<String, Handler> requestMap = new HashMap<String, Handler>();
 	
 	public HTTPServer(int port) {	
 		try {
@@ -35,17 +37,18 @@ public class HTTPServer{
 			System.out.println("listen");
 			try {
 				Socket socket = server.accept();
-				pool.execute(new HTTPServerWorker(socket));
+				pool.execute(new HTTPServerWorker(socket, requestMap));
 			} catch (IOException e) {
 				System.out.println("Socket error");
 			}
 		}
-		
 	}
 	
 	public void addMapping(String command, Handler handler) {
-		
+		requestMap.put(command, handler);
 	}
+	
+	
 	
 	public void shutdown() {
 		running = false;
