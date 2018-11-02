@@ -21,6 +21,8 @@ public class AmazonSearchAndSlackChatApplications {
 		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
 		
 		// map path
+		server.addMapping("/reviewsearch", new ReviewSearchHandler());
+		server.addMapping("/find", new FindHandler());
 		// start server
 		server.startup();
 	}

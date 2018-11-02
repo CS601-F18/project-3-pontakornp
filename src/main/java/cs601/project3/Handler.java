@@ -14,5 +14,5 @@ public interface Handler {
 	 * 
 	 * Called by a HTTPSever to handle specific task of the application.
 	 */
-	public void handle();
+	public void handle(String method, String path, String query);
 }

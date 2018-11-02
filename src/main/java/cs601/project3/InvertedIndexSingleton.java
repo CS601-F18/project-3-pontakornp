@@ -21,7 +21,6 @@ public class InvertedIndexSingleton {
 	}
 	public InvertedIndex getReviewInvertedIndex() {
 		return reviewIndex;
-		
 	}
 	public InvertedIndex getQAInvertedIndex() {
 		return qaIndex;

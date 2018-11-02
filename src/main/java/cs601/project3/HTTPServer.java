@@ -36,8 +36,8 @@ public class HTTPServer{
 		while(running) {
 			System.out.println("listen");
 			try {
-				Socket socket = server.accept();
-				pool.execute(new HTTPServerWorker(socket, requestMap));
+				Socket sock = server.accept();
+				pool.execute(new HTTPServerWorker(sock, requestMap));
 			} catch (IOException e) {
 				System.out.println("Socket error");
 			}
@@ -47,8 +47,6 @@ public class HTTPServer{
 	public void addMapping(String command, Handler handler) {
 		requestMap.put(command, handler);
 	}
-	
-	
 	
 	public void shutdown() {
 		running = false;
