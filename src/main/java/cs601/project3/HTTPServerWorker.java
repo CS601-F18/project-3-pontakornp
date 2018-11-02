@@ -22,10 +22,32 @@ public class HTTPServerWorker implements Runnable{
 		this.requestMap = requestMap;
 	}
 	
-	public void handleRequest(String method, String path, String query) {
+	public void callHandler(String method, String path, String query) {
 		if(requestMap.containsKey(path)) {
 			Handler handler = requestMap.get(path);
 			handler.handle(method, path, query);
+		}
+	}
+	
+	public void handleRequest(String line) {
+		String[] reqs = line.split(" ");
+		if(reqs.length >= 2) {
+			String method = reqs[0];
+			if(method != "GET" && method != "POST") {
+				// show 405
+				return;
+			}
+			String param = reqs[1];
+			String path = "";
+			String query = "";
+			int queryIndex = param.indexOf("?");
+			if(queryIndex != -1) {
+				path = param.substring(0, queryIndex);
+				query = param.substring(queryIndex + 1);
+			} else {
+				path = param;
+			}
+			callHandler(method, path, query);
 		}
 	}
 	
@@ -43,34 +65,16 @@ public class HTTPServerWorker implements Runnable{
 			
 			String message = "";
 			String line = oneLine(instream);
-			String[] reqs = line.split(" ");
-			if(reqs.length >= 2) {
-				String method = reqs[0];
-				String param = reqs[1];
-				String path = "";
-				String query = "";
-				int queryIndex = param.indexOf("?");
-				if(queryIndex != -1) {
-					path = param.substring(0, queryIndex);
-					query = param.substring(queryIndex + 1);
-				} else {
-					path = param;
-				}
-				System.out.println(method);
-				System.out.println(path);
-				System.out.println(query);
-				handleRequest(method, path, query);
-			}
+			
+			// handle request
+			handleRequest(line);
 			
 			int length = 0;
 			while(line != null && !line.trim().isEmpty()) {
 				
 				message += line + "\n";
 				line = oneLine(instream);
-				
-				
-				
-				
+
 				//TODO: fix this messy hack
 				if(line.startsWith("Content-Length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
@@ -129,8 +133,6 @@ public class HTTPServerWorker implements Runnable{
 		}
 //		shutdown();
 	}
-	
-	
 	
 	/**
 	 * Read a line of bytes until \n character.
