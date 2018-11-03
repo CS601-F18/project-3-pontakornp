@@ -22,14 +22,14 @@ public class HTTPServerWorker implements Runnable{
 		this.requestMap = requestMap;
 	}
 	
-	public void callHandler(String method, String path, String query) {
-		if(requestMap.containsKey(path)) {
-			Handler handler = requestMap.get(path);
-			handler.handle(method, path, query);
+	private void callHandler(HTTPRequest req, HTTPResponse resp) {
+		if(requestMap.containsKey(req.getPath())) {
+			Handler handler = requestMap.get(req.getPath());
+			handler.handle(req, resp);
 		}
 	}
 	
-	public void handleRequest(String line) {
+	private void handleRequest(String line, PrintWriter writer) {
 		String[] reqs = line.split(" ");
 		if(reqs.length >= 2) {
 			String method = reqs[0];
@@ -47,7 +47,13 @@ public class HTTPServerWorker implements Runnable{
 			} else {
 				path = param;
 			}
-			callHandler(method, path, query);
+			HTTPRequest req = new HTTPRequest(method, path, query);
+			HTTPResponse resp = new HTTPResponse();
+			callHandler(req, resp);
+//			String headers = "HTTP/1.0 200 OK\n" +
+//					"\r\n";
+//			writer.write(headers);
+//			writer.write(response);
 		}
 	}
 	
@@ -67,51 +73,51 @@ public class HTTPServerWorker implements Runnable{
 			String line = oneLine(instream);
 			
 			// handle request
-			handleRequest(line);
+			handleRequest(line, writer);
 			
-			int length = 0;
-			while(line != null && !line.trim().isEmpty()) {
-				
-				message += line + "\n";
-				line = oneLine(instream);
-
-				//TODO: fix this messy hack
-				if(line.startsWith("Content-Length:")) {
-					length = Integer.parseInt(line.split(":")[1].trim());
-				}
-				
-				//1. is this a valid format (key : value)?
-				//2. is the key valid? (constants defined somewhere)
-				//3. is the value valid for the key?							
-			}
-			System.out.println("Request: \n" + message);
-					
+//			int length = 0;
+//			while(line != null && !line.trim().isEmpty()) {
+//				
+//				message += line + "\n";
+//				line = oneLine(instream);
+//
+//				//TODO: fix this messy hack
+//				if(line.startsWith("Content-Length:")) {
+//					length = Integer.parseInt(line.split(":")[1].trim());
+//				}
+//				
+//				//1. is this a valid format (key : value)?
+//				//2. is the key valid? (constants defined somewhere)
+//				//3. is the value valid for the key?							
+//			}
+//			System.out.println("Request: \n" + message);
+//					
+//			
+//			byte[] bytes = new byte[length];
+//			int read = sock.getInputStream().read(bytes);
+//			
+//			while(read < length) {
+//				read += sock.getInputStream().read(bytes, read, (bytes.length-read));
+//			}
+//			
+//			System.out.println("Bytes expected: " + length + " Bytes read: " + read);			
 			
-			byte[] bytes = new byte[length];
-			int read = sock.getInputStream().read(bytes);
-			
-			while(read < length) {
-				read += sock.getInputStream().read(bytes, read, (bytes.length-read));
-			}
-			
-			System.out.println("Bytes expected: " + length + " Bytes read: " + read);			
-			
-			//save uploaded image to out.jpg
-			FileOutputStream fout = new FileOutputStream("out.jpeg");
-			fout.write(bytes);
-			fout.close(); 
+//			//save uploaded image to out.jpg
+//			FileOutputStream fout = new FileOutputStream("out.jpeg");
+//			fout.write(bytes);
+//			fout.close(); 
 						
 			//send response to client
-			String headers = "HTTP/1.0 200 OK\n" +
-						"\r\n";
+//			String headers = "HTTP/1.0 200 OK\n" +
+//						"\r\n";
+//			
+//			String page = "<html> " + 
+//						"<head><title>TEST</title></head>" + 
+//					    "<body>This is a short test page.</body>" + 
+//						"</html>";
 			
-			String page = "<html> " + 
-						"<head><title>TEST</title></head>" + 
-					    "<body>This is a short test page.</body>" + 
-						"</html>";
-			
-			writer.write(headers);
-			writer.write(page);
+//			writer.write(headers);
+//			writer.write(page);
 
 //			String responseHeader = "HTTP/1.0 200 OK\n" +
 //					"\r\n";
@@ -151,7 +157,7 @@ public class HTTPServerWorker implements Runnable{
 	}
 	
 	
-	public void shutdown() {
+	private void shutdown() {
 		try {
 //			writer.close();
 			sock.close();

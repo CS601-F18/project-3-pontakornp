@@ -15,10 +15,7 @@ public class AmazonSearchAndSlackChatApplications {
 		int port = 1024;
 		HTTPServer server = new HTTPServer(port);
 		
-		// build invertedindex
-		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
-		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
-		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
+		
 		
 		// map path
 		server.addMapping("/reviewsearch", new ReviewSearchHandler());

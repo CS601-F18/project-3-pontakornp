@@ -4,6 +4,12 @@ public class SearchApplication {
 	public static void main(String[] args) {
 		int port = 1024;
 		HTTPServer server = new HTTPServer(port);
+		
+		// build invertedindex
+		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
+		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
+		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
+
 		//The request GET /reviewsearch will be dispatched to the 
 		//handle method of the ReviewSearchHandler.
 		server.addMapping("/reviewsearch", new ReviewSearchHandler());
