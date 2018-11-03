@@ -26,6 +26,11 @@ public class HTTPServerWorker implements Runnable{
 		if(requestMap.containsKey(req.getPath())) {
 			Handler handler = requestMap.get(req.getPath());
 			handler.handle(req, resp);
+			System.out.println("yes map");
+		} else {
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			System.out.println("no map");
 		}
 	}
 	
@@ -33,10 +38,6 @@ public class HTTPServerWorker implements Runnable{
 		String[] reqs = line.split(" ");
 		if(reqs.length >= 2) {
 			String method = reqs[0];
-			if(method != "GET" && method != "POST") {
-				// show 405
-				return;
-			}
 			String param = reqs[1];
 			String path = "";
 			String query = "";
@@ -50,6 +51,13 @@ public class HTTPServerWorker implements Runnable{
 			HTTPRequest req = new HTTPRequest(method, path, query);
 			HTTPResponse resp = new HTTPResponse();
 			callHandler(req, resp);
+			String headers = resp.getHeaders();
+			String page = resp.getPage();
+			System.out.println(headers);
+			System.out.println(page);
+			writer.write(headers);
+			writer.write(page);
+			System.out.println("done");
 //			String headers = "HTTP/1.0 200 OK\n" +
 //					"\r\n";
 //			writer.write(headers);
@@ -75,32 +83,32 @@ public class HTTPServerWorker implements Runnable{
 			// handle request
 			handleRequest(line, writer);
 			
-//			int length = 0;
-//			while(line != null && !line.trim().isEmpty()) {
-//				
-//				message += line + "\n";
-//				line = oneLine(instream);
-//
-//				//TODO: fix this messy hack
-//				if(line.startsWith("Content-Length:")) {
-//					length = Integer.parseInt(line.split(":")[1].trim());
-//				}
-//				
-//				//1. is this a valid format (key : value)?
-//				//2. is the key valid? (constants defined somewhere)
-//				//3. is the value valid for the key?							
-//			}
-//			System.out.println("Request: \n" + message);
-//					
-//			
-//			byte[] bytes = new byte[length];
-//			int read = sock.getInputStream().read(bytes);
-//			
-//			while(read < length) {
-//				read += sock.getInputStream().read(bytes, read, (bytes.length-read));
-//			}
-//			
-//			System.out.println("Bytes expected: " + length + " Bytes read: " + read);			
+			int length = 0;
+			while(line != null && !line.trim().isEmpty()) {
+				
+				message += line + "\n";
+				line = oneLine(instream);
+
+				//TODO: fix this messy hack
+				if(line.startsWith("Content-Length:")) {
+					length = Integer.parseInt(line.split(":")[1].trim());
+				}
+				
+				//1. is this a valid format (key : value)?
+				//2. is the key valid? (constants defined somewhere)
+				//3. is the value valid for the key?							
+			}
+			System.out.println("Request: \n" + message);
+					
+			
+			byte[] bytes = new byte[length];
+			int read = sock.getInputStream().read(bytes);
+			
+			while(read < length) {
+				read += sock.getInputStream().read(bytes, read, (bytes.length-read));
+			}
+			
+			System.out.println("Bytes expected: " + length + " Bytes read: " + read);			
 			
 //			//save uploaded image to out.jpg
 //			FileOutputStream fout = new FileOutputStream("out.jpeg");
