@@ -28,7 +28,7 @@ public class ReviewSearchHandler implements Handler{
 		int resultSize = reviewIndex.getTermMap().get(value).size();
 		System.out.println("Result Size:" + resultSize);
 		String html = "<html> " + 
-					"<head><title>Review Search Result</title></head>" + 
+					"<head><title>Review Search Results</title></head>" + 
 					"<body>" + 
 						"<p>Search term: " + value+ "</p>" +
 						"<table style=\"width:100%\">" +
