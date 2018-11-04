@@ -23,6 +23,7 @@ public class HTTPServerWorker implements Runnable{
 	}
 	
 	private void callHandler(HTTPRequest req, HTTPResponse resp) {
+		System.out.println(req.getPath());
 		if(requestMap.containsKey(req.getPath())) {
 			Handler handler = requestMap.get(req.getPath());
 			handler.handle(req, resp);
@@ -34,21 +35,23 @@ public class HTTPServerWorker implements Runnable{
 		}
 	}
 	
-	private void handleRequest(String line, PrintWriter writer) {
-		String[] reqs = line.split(" ");
-		if(reqs.length >= 2) {
+	private void handleRequest(String header, String body, PrintWriter writer) {
+		String[] reqs = header.split(" ");
+		if(reqs.length >= 4) {
 			String method = reqs[0];
-			String param = reqs[1];
-			String path = "";
-			String query = "";
-			int queryIndex = param.indexOf("?");
-			if(queryIndex != -1) {
-				path = param.substring(0, queryIndex);
-				query = param.substring(queryIndex + 1);
-			} else {
-				path = param;
-			}
-			HTTPRequest req = new HTTPRequest(method, path, query);
+			String path = reqs[1];
+			String HTTPversion = reqs[2];
+			String serverName = reqs[3]; 
+//			int queryIndex = param.indexOf("?");
+//			if(queryIndex != -1) {
+//				path = param.substring(0, queryIndex);
+//				query = param.substring(queryIndex + 1);
+//			} else {
+//				path = param;
+//			}
+			
+			System.out.println("QQQQUERY: " + body);
+			HTTPRequest req = new HTTPRequest(method, serverName, path, body);
 			HTTPResponse resp = new HTTPResponse();
 			callHandler(req, resp);
 			String headers = resp.getHeaders();
@@ -79,16 +82,22 @@ public class HTTPServerWorker implements Runnable{
 			
 			String message = "";
 			String line = oneLine(instream);
-			
+			String header = line;
 			// handle request
-			handleRequest(line, writer);
+//			handleRequest(line, writer);
 			
 			int length = 0;
+			String serverName = "";
+			int port = 0;
+			HTTPRequest req = new HTTPRequest();
 			while(line != null && !line.trim().isEmpty()) {
-				
 				message += line + "\n";
 				line = oneLine(instream);
-
+				if(line.startsWith("Host:")) {
+					serverName = line.split(":")[1].trim();
+					port = Integer.parseInt(line.split(":")[2].trim());
+				}
+				
 				//TODO: fix this messy hack
 				if(line.startsWith("Content-Length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
@@ -105,11 +114,17 @@ public class HTTPServerWorker implements Runnable{
 			int read = sock.getInputStream().read(bytes);
 			
 			while(read < length) {
-				read += sock.getInputStream().read(bytes, read, (bytes.length-read));
+				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
+			
 			}
 			
-			System.out.println("Bytes expected: " + length + " Bytes read: " + read);			
-			
+			System.out.println("Bytes expected: " + length + " Bytes read: " + read);	
+			String body = "";
+			if(length == read && length != 0) {
+				body = new String(bytes);
+			}
+			header += " " + serverName;
+			handleRequest(header, body, writer);
 //			//save uploaded image to out.jpg
 //			FileOutputStream fout = new FileOutputStream("out.jpeg");
 //			fout.write(bytes);

@@ -4,31 +4,70 @@ public class ReviewSearchHandler implements Handler{
 
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
+		resp.setHeader(HTTPConstants.OK_HEADER);
 		if(req.getMethod().equals("GET")) {
 			System.out.println("GET");
-			resp.setHeader(getHeader());
 			resp.setPage(getForm());
+			
 		} else { // method == "POST"
 			System.out.println("POST");
+			resp.setPage(getSearchResult(req, resp));
 		}
 	}
 	
-	private String getHeader() {
-		String headers = "HTTP/1.0 200 OK\n";
-		return headers;
+	private String getSearchResult(HTTPRequest req, HTTPResponse resp) {
+		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
+		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
+		String key = req.getQueryString().split("=")[0];
+		String value = req.getQueryString().split("=")[1];
+		// check if query string valid
+		if(!key.equals("query") || value.equals("") || !reviewIndex.getTermMap().containsKey(value)) {
+			System.out.println("Search term is not found. Please try other search term.\n");
+			return getForm();
+		}
+		int resultSize = reviewIndex.getTermMap().get(value).size();
+		System.out.println("Result Size:" + resultSize);
+		String html = "<html> " + 
+					"<head><title>Review Search Result</title></head>" + 
+					"<body>" + 
+						"<p>Search term: " + value+ "</p>" +
+						"<table style=\"width:100%\">" +
+							"<tr>" +
+							    "<th style=\"border: 1px solid #dddddd;\">ASIN</th>" +
+							    "<th style=\"border: 1px solid #dddddd;\">Reviewer ID</th>" +
+							    "<th style=\"border: 1px solid #dddddd;\">Review Text</th>" +
+							    "<th style=\"border: 1px solid #dddddd;\">Overall Score</th>" +
+							    "<th style=\"border: 1px solid #dddddd;\">Number of Occurences</th>" +
+						    "</tr>";
+		for(int i = 0; i < resultSize; i++) {
+			CustomerEngagementFrequency cef = reviewIndex.getTermMap().get(value).get(i);
+			Review review = (Review)cef.getCE();
+			html +=	"<tr>" +
+				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getASIN() + "</th>" +
+				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getReviewerID() + "</td>" +
+				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getReviewText() + "</td>" +
+				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getOverall() + "</td>" +
+				    	"<td style=\"border: 1px solid #dddddd;\">" + cef.getFreq() + "</td>" +
+			    	"</tr>";
+		}
+		html += "</table>" +
+				"</body>" +
+				"</html>";
+		return html;
 	}
 	
 	private String getForm() {
 		String html = "<html> " + 
-				"<head><title>TEST</title></head>" + 
+				"<head><title>Review Search</title></head>" + 
 				"<body>" + 
-					"<form>" +
+					"<form action\"/reviewsearch\" method=\"post\">" +
 						"Review search:<br>" + 
-						"<input type='text' name='term'><br>" +
-						"<input type='submit' value='Search'>" +
+						"<input type=\"text\" name=\"query\"><br>" +
+						"<input type=\"submit\" value=\"Search\">" +
 					"</form>" +
-				"</body>" + 
+				"</body>" +
 				"</html>";
 		return html;
-	} 
+	}
+	
 }

@@ -2,13 +2,21 @@ package cs601.project3;
 
 public class HTTPRequest {
 	private String method;
+	private String serverName;
 	private String path;
-	private String query;
+	private String queryString;
 	
-	public HTTPRequest(String method, String path, String query) {
+	public HTTPRequest() {
+		this.method = "";
+		this.serverName = "";
+		this.path = "";
+		this.queryString = "";
+	}
+	public HTTPRequest(String method, String serverName, String path, String queryString) {
 		this.method = method;
+		this.serverName = serverName;
 		this.path = path;
-		this.query = query;
+		this.queryString = queryString;
 	}
 	
 	public String getMethod() {
@@ -27,11 +35,19 @@ public class HTTPRequest {
 		this.path = path;
 	}
 	
-	public String getQuery() {
-		return query;
+	public String getQueryString() {
+		return queryString;
 	}
 	
-	public void setQuery(String query) {
-		this.query = query;
+	public void setQueryString(String queryString) {
+		this.queryString = queryString;
+	}
+	
+	public String getServerName() {
+		return serverName;
+	}
+	
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
 	}
 }

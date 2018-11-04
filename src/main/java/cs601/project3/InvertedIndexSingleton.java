@@ -1,7 +1,7 @@
 package cs601.project3;
 
 public class InvertedIndexSingleton {
-	private static InvertedIndexSingleton instance;
+	private static InvertedIndexSingleton INSTANCE;
 	private InvertedIndex reviewIndex;
 	private InvertedIndex qaIndex;
 	
@@ -14,10 +14,10 @@ public class InvertedIndexSingleton {
 	}
 	
 	public static InvertedIndexSingleton getInstance() {
-		if(instance == null) {
-			instance = new InvertedIndexSingleton();
+		if(INSTANCE == null) {
+			INSTANCE = new InvertedIndexSingleton();
 		}
-		return instance;
+		return INSTANCE;
 	}
 	public InvertedIndex getReviewInvertedIndex() {
 		return reviewIndex;

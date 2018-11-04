@@ -7,8 +7,6 @@ public class SearchApplication {
 		
 		// build invertedindex
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
-		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
-		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
 
 		//The request GET /reviewsearch will be dispatched to the 
 		//handle method of the ReviewSearchHandler.

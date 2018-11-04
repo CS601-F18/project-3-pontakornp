@@ -64,7 +64,7 @@ public class AmazonFileHandling {
 			Gson gson = new Gson();
 			while((line = reader.readLine()) != null) {
 				try {
-					if(customerEngagementType == "review") {
+					if(customerEngagementType.equals("review")) {
 						Review review = gson.fromJson(line, Review.class); // parse json to Review object
 						index.addToMap(review, customerEngagementType); // add review to map in inverted index
 					} else {

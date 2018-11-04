@@ -88,6 +88,17 @@ public class InvertedIndex {
 		return true;
 	}
 	
+//	public String getSearchTermMap(String term) {
+//		return termMap.get(term);
+////		String record = "";
+//		for(int i = 0; i < termMap.get(term).size(); i++) {
+//			record += termMap.get(term).get(i) + "\n";
+////			System.out.println(termMap.get(term).get(i)
+////					+ "Matched term: " + term + "\n" 
+////					+ "Number of term occurence: " + termMap.get(term).get(i).getFreq() + "\n");
+//		}
+//	}
+	
 	/**
 	 * 
 	 * Searches and prints all review/ qa list that partially matches with given search term.
@@ -156,7 +167,7 @@ public class InvertedIndex {
 	 */
 	private void putTerm(CustomerEngagement ce, String customerEngagementType) {
 		String[] terms;
-		if(customerEngagementType == "review") {
+		if(customerEngagementType.equals("review")) {
 			terms = cleanReviewText((Review)ce);
 		} else {
 			terms = cleanQAText((QA)ce);
