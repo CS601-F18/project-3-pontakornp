@@ -25,13 +25,13 @@ public class HTTPServerWorker implements Runnable{
 	private void callHandler(HTTPRequest req, HTTPResponse resp) {
 		System.out.println(req.getPath());
 		if(requestMap.containsKey(req.getPath())) {
+			System.out.println("yes map");
 			Handler handler = requestMap.get(req.getPath());
 			handler.handle(req, resp);
-			System.out.println("yes map");
 		} else {
+			System.out.println("no map");
 			Handler handler = new ErrorHandler();
 			handler.handle(req, resp);
-			System.out.println("no map");
 		}
 	}
 	
@@ -86,7 +86,7 @@ public class HTTPServerWorker implements Runnable{
 				//2. is the key valid? (constants defined somewhere)
 				//3. is the value valid for the key?							
 			}
-			System.out.println("Request: \n" + message);
+			System.out.println("Request: " + message);
 			byte[] bytes = new byte[length];
 			int read = sock.getInputStream().read(bytes);
 			while(read < length) {

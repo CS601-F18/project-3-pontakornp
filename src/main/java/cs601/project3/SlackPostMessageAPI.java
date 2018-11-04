@@ -2,6 +2,7 @@ package cs601.project3;
 
 public class SlackPostMessageAPI {
 	private String url;
+	private String method;
 	private String token;
 	private String channel;
 	private String text;
@@ -9,10 +10,11 @@ public class SlackPostMessageAPI {
 	public SlackPostMessageAPI(String text) {
 		Config config = new Config();
 		config.setVariables();
-		this.setUrl("https://slack.com/api/chat.postMessage");
-		this.setToken(config.getToken());
-		this.setChannel(config.getChannel());
-		this.setText(text);
+		this.url = "https://slack.com/";
+		this.method = "api/chat.postMessage";
+		this.token = config.getToken();
+		this.channel = config.getChannel();
+		this.text = text;
 	}
 
 	public String getUrl() {
@@ -21,6 +23,14 @@ public class SlackPostMessageAPI {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	
+	public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
 	}
 
 	public String getToken() {
@@ -46,4 +56,14 @@ public class SlackPostMessageAPI {
 	public void setText(String text) {
 		this.text = text;
 	}
+	
+	public String getTargetUrl() {
+		return url + method;
+	}
+	
+	public String getUrlParameters() {
+		return "channel=" + channel + "&text=" + text;
+	}
+
+	
 }

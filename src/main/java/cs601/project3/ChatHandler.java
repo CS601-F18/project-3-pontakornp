@@ -1,9 +1,13 @@
 package cs601.project3;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+
+import java.io.*;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -21,15 +25,8 @@ public class ChatHandler implements Handler{
 		}
 	}
 	
-	private String getSlackURL(String text) {
-		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(text);
-		String url = slackAPI.getUrl();
-		return url;
-		
-	}
 	private String sendMessage(HTTPRequest req, HTTPResponse resp) {
-		
-		
+		System.out.println(req.getQueryString());
 		int firstSignIndex = req.getQueryString().indexOf("=");
 		String key = req.getQueryString().substring(0, firstSignIndex);
 		String value = req.getQueryString().substring(firstSignIndex + 1);
@@ -39,23 +36,41 @@ public class ChatHandler implements Handler{
 			System.out.println("Wrong message. Please try again.");
 			return getForm();
 		}
-		String url = getSlackURL(value);
-//		try {
-//			URL obj = new URL(url);
-//			HttpsURLConnection connection = (HttpsURLConnection) obj.openConnection();
-////			byte[] compressedData = compress(value);
-//			//add request header
-//			connection.setRequestMethod("POST");
-//		    connection.addRequestProperty("Accept", "application/json");
-//		    connection.addRequestProperty("Connection", "close");
-//		    connection.addRequestProperty("Content-Encoding", "gzip"); // We gzip our request
-//		    connection.addRequestProperty("Content-Length", String.valueOf(compressedData.length));
-//		    connection.setRequestProperty("Content-Type", "application/json"); // We send our data in JSON 
-//		} catch (IOException e) {
-//			System.out.println("Connection fail.");
-//		}
-//		
-		return getSuccessResponse();
+		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(value);
+		String url = slackAPI.getTargetUrl();
+		String urlParam = slackAPI.getUrlParameters();
+		System.out.println(url);
+		try {
+			URL obj = new URL(url);
+			HttpsURLConnection connection = (HttpsURLConnection) obj.openConnection();
+//			byte[] compressedData = compress(value);
+			//add request header
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+		    connection.setRequestProperty("Authorization", "Bearer " + slackAPI.getToken());
+		    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); // send data in encoded url form
+		    //send data
+		    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+		    outputStream.writeBytes(urlParam);
+		    outputStream.close();
+		    //get response
+		    InputStream inputStream = connection.getInputStream();
+		    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		    StringBuilder response = new StringBuilder();
+		    String line;
+		    while ((line = reader.readLine()) != null) {
+		      response.append(line);
+		      response.append('\r');
+		    }
+		    reader.close();
+		    return response.toString();
+		    
+//		    return getSuccessResponse();
+		} catch (IOException e) {
+			System.out.println("Connection fail.");
+			return getErrorResponse();
+		}
+		
 	}
 	
 	private String getSuccessResponse() {
@@ -63,6 +78,16 @@ public class ChatHandler implements Handler{
 				"<head><title>Send Slack Message</title></head>" + 
 				"<body>" + 
 					"<p>Message sent!</p>" +
+				"</body>" +
+				"</html>";
+		return html;
+	}
+	
+	private String getErrorResponse() {
+		String html = "<html> " + 
+				"<head><title>Send Slack Message</title></head>" + 
+				"<body>" + 
+					"<p>There's some problem when sending message. Please try again.</p>" +
 				"</body>" +
 				"</html>";
 		return html;
