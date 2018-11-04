@@ -42,15 +42,12 @@ public class HTTPServerWorker implements Runnable{
 			String path = reqs[1];
 			String HTTPversion = reqs[2];
 			String serverName = reqs[3]; 
-//			int queryIndex = param.indexOf("?");
-//			if(queryIndex != -1) {
-//				path = param.substring(0, queryIndex);
-//				query = param.substring(queryIndex + 1);
-//			} else {
-//				path = param;
-//			}
+			int queryStringIndex = path.indexOf("?");
+			// check if there is a query string passed by the get method
+			if(queryStringIndex != -1) {
+				path = path.substring(0, queryStringIndex);
+			}
 			
-			System.out.println("QQQQUERY: " + body);
 			HTTPRequest req = new HTTPRequest(method, serverName, path, body);
 			HTTPResponse resp = new HTTPResponse();
 			callHandler(req, resp);
