@@ -47,7 +47,6 @@ public class HTTPServerWorker implements Runnable{
 			if(queryStringIndex != -1) {
 				path = path.substring(0, queryStringIndex);
 			}
-			
 			HTTPRequest req = new HTTPRequest(method, serverName, path, body);
 			HTTPResponse resp = new HTTPResponse();
 			callHandler(req, resp);
@@ -58,10 +57,6 @@ public class HTTPServerWorker implements Runnable{
 			writer.write(headers);
 			writer.write(page);
 			System.out.println("done");
-//			String headers = "HTTP/1.0 200 OK\n" +
-//					"\r\n";
-//			writer.write(headers);
-//			writer.write(response);
 		}
 	}
 	
@@ -70,23 +65,12 @@ public class HTTPServerWorker implements Runnable{
 			InputStream instream = sock.getInputStream();
 			PrintWriter writer = new PrintWriter(sock.getOutputStream(), true);
 		){
-//			String responseHeader = "HTTP/1.0 200 OK\n" +
-//					"\r\n";
-//			String page = "<html> " + 
-//					"<head><title>TEST</title></head>" + 
-//					"<body>This is a short test page.</body>" + 
-//					"</html>";
-			
 			String message = "";
 			String line = oneLine(instream);
 			String header = line;
-			// handle request
-//			handleRequest(line, writer);
-			
 			int length = 0;
 			String serverName = "";
 			int port = 0;
-			HTTPRequest req = new HTTPRequest();
 			while(line != null && !line.trim().isEmpty()) {
 				message += line + "\n";
 				line = oneLine(instream);
@@ -94,27 +78,20 @@ public class HTTPServerWorker implements Runnable{
 					serverName = line.split(":")[1].trim();
 					port = Integer.parseInt(line.split(":")[2].trim());
 				}
-				
 				//TODO: fix this messy hack
 				if(line.startsWith("Content-Length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
 				}
-				
 				//1. is this a valid format (key : value)?
 				//2. is the key valid? (constants defined somewhere)
 				//3. is the value valid for the key?							
 			}
 			System.out.println("Request: \n" + message);
-					
-			
 			byte[] bytes = new byte[length];
 			int read = sock.getInputStream().read(bytes);
-			
 			while(read < length) {
 				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
-			
 			}
-			
 			System.out.println("Bytes expected: " + length + " Bytes read: " + read);	
 			String body = "";
 			if(length == read && length != 0) {
@@ -176,7 +153,6 @@ public class HTTPServerWorker implements Runnable{
 		return new String(bout.toByteArray());
 	}
 	
-	
 	private void shutdown() {
 		try {
 //			writer.close();
@@ -186,5 +162,4 @@ public class HTTPServerWorker implements Runnable{
 			e.printStackTrace();
 		}
 	}
-	
 }

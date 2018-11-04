@@ -1,5 +1,8 @@
 package cs601.project3;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 public class ReviewSearchHandler implements Handler{
 
 	public void handle(HTTPRequest req, HTTPResponse resp) {
@@ -8,7 +11,6 @@ public class ReviewSearchHandler implements Handler{
 		if(req.getMethod().equals("GET")) {
 			System.out.println("GET");
 			resp.setPage(getForm());
-			
 		} else { // method == "POST"
 			System.out.println("POST");
 			resp.setPage(getSearchResult(req, resp));
@@ -18,8 +20,19 @@ public class ReviewSearchHandler implements Handler{
 	private String getSearchResult(HTTPRequest req, HTTPResponse resp) {
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
-		String key = req.getQueryString().split("=")[0];
-		String value = req.getQueryString().split("=")[1];
+		
+		int firstSignIndex = req.getQueryString().indexOf("=");
+		String key = req.getQueryString().substring(0, firstSignIndex);
+
+//		String key = req.getQueryString().split("=")[0];
+		String value = req.getQueryString().substring(firstSignIndex + 1);
+		System.out.println(key + ":" + value);
+		try {
+			value = URLDecoder.decode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("An issue occurs when decoding parameters. Please try again.");
+		}
+		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
 		// check if query string valid
 		if(!key.equals("query") || value.equals("") || !reviewIndex.getTermMap().containsKey(value)) {
 			System.out.println("Search term is not found. Please try other search term.\n");
@@ -30,7 +43,7 @@ public class ReviewSearchHandler implements Handler{
 		String html = "<html> " + 
 					"<head><title>Review Search Results</title></head>" + 
 					"<body>" + 
-						"<p>Search term: " + value+ "</p>" +
+						"<p>Search term: " + value + "</p>" +
 						"<table style=\"width:100%\">" +
 							"<tr>" +
 							    "<th style=\"border: 1px solid #dddddd;\">ASIN</th>" +

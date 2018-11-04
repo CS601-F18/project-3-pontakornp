@@ -15,6 +15,8 @@ public class Config {
 	private String qaFileName;
 	private String reviewType;
 	private String qaType;
+	private String token;
+	private String channel;
 	
 	public void setReviewFileName(String reviewFileName) {
 		this.reviewFileName = reviewFileName;
@@ -44,6 +46,22 @@ public class Config {
 		this.qaType = qaType;
 	}
 	
+	public String getToken() {
+		return token;
+	}
+	
+	public void setToken(String token) {
+		this.token = token;
+	}
+	
+	public String getChannel() {
+		return channel;
+	}
+	
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+	
 	public String getQAType() {
 		return qaType;
 	}
@@ -66,6 +84,8 @@ public class Config {
 					this.qaFileName = config.qaFileName;
 					this.reviewType = config.reviewType;
 					this.qaType = config.qaType;
+					this.token = config.token;
+					this.channel = config.channel;
 				} catch(JsonSyntaxException jse) {
 					// skip
 				}
