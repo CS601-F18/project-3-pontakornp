@@ -1,14 +1,8 @@
 package cs601.project3;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
-
-import java.io.*;
-
 import javax.net.ssl.HttpsURLConnection;
 
 public class ChatHandler implements Handler{
@@ -36,6 +30,7 @@ public class ChatHandler implements Handler{
 			System.out.println("Wrong message. Please try again.");
 			return getForm();
 		}
+		String message = "Nat: " + value; // to distinguish
 		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(value);
 		String url = slackAPI.getTargetUrl();
 		String urlParam = slackAPI.getUrlParameters();
@@ -54,16 +49,28 @@ public class ChatHandler implements Handler{
 		    outputStream.writeBytes(urlParam);
 		    outputStream.close();
 		    //get response
-		    InputStream inputStream = connection.getInputStream();
-		    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		    StringBuilder response = new StringBuilder();
-		    String line;
-		    while ((line = reader.readLine()) != null) {
-		      response.append(line);
-		      response.append('\r');
+		    
+		    //reference: https://stackoverflow.com/questions/613307/read-error-response-body-in-java
+		    InputStream inputStream;
+		    if (connection.getResponseCode() < HttpsURLConnection.HTTP_BAD_REQUEST) {
+		        inputStream = connection.getInputStream();
+		        System.out.println("Success.");
+		        return getSuccessResponse();
+//		        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+//			    StringBuilder response = new StringBuilder();
+//			    String line;
+//			    while ((line = reader.readLine()) != null) {
+//			      response.append(line);
+//			      response.append('\r');
+//			    }
+//			    reader.close();
+//			    return response.toString();
+		    } else {
+		    	inputStream = connection.getErrorStream();
+		    	System.out.println("Bad Request.");
+		    	return getErrorResponse();
 		    }
-		    reader.close();
-		    return response.toString();
+		    
 		    
 //		    return getSuccessResponse();
 		} catch (IOException e) {

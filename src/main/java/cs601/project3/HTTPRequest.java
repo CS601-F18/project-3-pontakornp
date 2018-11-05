@@ -2,21 +2,22 @@ package cs601.project3;
 
 public class HTTPRequest {
 	private String method;
-	private String serverName;
 	private String path;
 	private String queryString;
+	private int statusCode;
 	
 	public HTTPRequest() {
 		this.method = "";
-		this.serverName = "";
 		this.path = "";
 		this.queryString = "";
+		this.statusCode = 200;
 	}
-	public HTTPRequest(String method, String serverName, String path, String queryString) {
+	
+	public HTTPRequest(String method, String path, String queryString, int statusCode) {
 		this.method = method;
-		this.serverName = serverName;
 		this.path = path;
 		this.queryString = queryString;
+		this.statusCode = statusCode;
 	}
 	
 	public String getMethod() {
@@ -42,12 +43,12 @@ public class HTTPRequest {
 	public void setQueryString(String queryString) {
 		this.queryString = queryString;
 	}
-	
-	public String getServerName() {
-		return serverName;
+
+	public int getStatusCode() {
+		return statusCode;
 	}
-	
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 }
