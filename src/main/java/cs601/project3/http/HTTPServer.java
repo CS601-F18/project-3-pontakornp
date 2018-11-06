@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
+import cs601.project3.ChatAndSearchApplicationLogger;
 import cs601.project3.handler.Handler;
 
 /**
@@ -30,18 +32,18 @@ public class HTTPServer{
 			this.pool = Executors.newFixedThreadPool(5);
 			this.running = true;
 		} catch(IOException ioe) {
-			System.out.println("Cannot start the server. Please try again.");
+			ChatAndSearchApplicationLogger.write(Level.WARNING, "Cannot start the server", 1);
 		}
 	}
 	
 	public void startup() {
 		while(running) {
-			System.out.println("listen");
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Server listens", 0);
 			try {
 				Socket sock = server.accept();
 				pool.execute(new HTTPServerWorker(sock, requestMap));
 			} catch (IOException e) {
-				System.out.println("Socket error");
+				ChatAndSearchApplicationLogger.write(Level.WARNING, "Error when server trying to accept the client to connect through socket", 1);
 			}
 		}
 	}
@@ -56,7 +58,7 @@ public class HTTPServer{
 		try {
 			pool.awaitTermination(60, TimeUnit.MILLISECONDS);
 		} catch(InterruptedException ioe) {
-			System.out.println("Thread got interrupted. Please try again.");
+			ChatAndSearchApplicationLogger.write(Level.WARNING, "Thread in thread pool got interrupted", 1);
 		}
 	}
 }

@@ -1,7 +1,9 @@
 package cs601.project3.handler;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
+import cs601.project3.ChatAndSearchApplicationLogger;
 import cs601.project3.http.HTTPConstants;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
@@ -17,17 +19,18 @@ public class FindHandler implements Handler {
 		//determine get or post
 		resp.setHeader(HTTPConstants.OK_HEADER);
 		if(req.getMethod().equals("GET")) {
-			System.out.println("GET");
+			ChatAndSearchApplicationLogger.write(Level.INFO, "GET Handle method: " + req.getMethod(), 0);
 			doGet(resp);
 			
 		} else { // method == "POST"
-			System.out.println("POST");
+			ChatAndSearchApplicationLogger.write(Level.INFO, "POST Handle method: " + req.getMethod(), 0);
 			doPost(req, resp);
 		}
 	}
 	
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("asin") || req.getQueryStringMap().get("asin").equals("")) {
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map not conain main param or value is null", 0);
 			req.setStatusCode(400);
 			Handler handler = new ErrorHandler();
 			handler.handle(req, resp);
@@ -44,7 +47,9 @@ public class FindHandler implements Handler {
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
 		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
 		String value = req.getQueryStringMap().get("asin");
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
 		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value after cleaning: " + value, 0);
 		String html = "<html> " + 
 					"<head><title>Review and QA documents</title></head>" + 
 					"<body>" + 

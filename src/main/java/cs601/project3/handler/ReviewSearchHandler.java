@@ -1,5 +1,8 @@
 package cs601.project3.handler;
 
+import java.util.logging.Level;
+
+import cs601.project3.ChatAndSearchApplicationLogger;
 import cs601.project3.http.HTTPConstants;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
@@ -12,27 +15,28 @@ public class ReviewSearchHandler implements Handler{
 
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
-		
 		if(req.getMethod().equals("GET")) {
-			System.out.println("GET");
-//			resp.setPage(getForm());
+			ChatAndSearchApplicationLogger.write(Level.INFO, "GET Handle method: " + req.getMethod(), 0);
 			doGet(resp);
 		} else { // method == "POST"
-			System.out.println("POST");
-//			resp.setPage(getSearchResult(req, resp));
-			
+			ChatAndSearchApplicationLogger.write(Level.INFO, "POST Handle method: " + req.getMethod(), 0);
 			doPost(req, resp);
 		}
 	}
 	
-	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
-		if (!req.getQueryStringMap().containsKey("query") || req.getQueryStringMap().get("query").equals("")) {
-			req.setStatusCode(400);
-			Handler handler = new ErrorHandler();
-			handler.handle(req, resp);
-			return false;
-		}
-		return true;
+	private void doGet(HTTPResponse resp) {
+		String html = "<html> " + 
+				"<head><title>Review Search</title></head>" + 
+				"<body>" + 
+					"<form action=\"/reviewsearch\" method=\"post\">" +
+						"Review search:<br/>" + 
+						"<input type=\"text\" name=\"query\"/><br/>" +
+						"<input type=\"submit\" value=\"Search\"/>" +
+					"</form>" +
+				"</body>" +
+				"</html>";
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
 	}
 	
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
@@ -42,9 +46,11 @@ public class ReviewSearchHandler implements Handler{
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
 		String value = req.getQueryStringMap().get("query");
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
 		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value after cleaning: " + value, 0);
 		int resultSize = reviewIndex.getTermMap().get(value).size();
-		System.out.println("Result Size:" + resultSize);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Result Size:" + resultSize, 0);
 		String html = "<html> " + 
 					"<head><title>Review Search Results</title></head>" + 
 					"<body>" + 
@@ -75,18 +81,14 @@ public class ReviewSearchHandler implements Handler{
 		resp.setPage(html);
 	}
 	
-	private void doGet(HTTPResponse resp) {
-		String html = "<html> " + 
-				"<head><title>Review Search</title></head>" + 
-				"<body>" + 
-					"<form action=\"/reviewsearch\" method=\"post\">" +
-						"Review search:<br/>" + 
-						"<input type=\"text\" name=\"query\"/><br/>" +
-						"<input type=\"submit\" value=\"Search\"/>" +
-					"</form>" +
-				"</body>" +
-				"</html>";
-		resp.setHeader(HTTPConstants.OK_HEADER);
-		resp.setPage(html);
+	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
+		if (!req.getQueryStringMap().containsKey("query") || req.getQueryStringMap().get("query").equals("")) {
+			req.setStatusCode(400);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map not conain main param or value is null", 0);
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			return false;
+		}
+		return true;
 	}
 }

@@ -26,15 +26,17 @@ public class HTTPServerWorker implements Runnable{
 	private void callHandler(HTTPRequest req, HTTPResponse resp) {
 		System.out.println(req.getPath());
 		if(req.getStatusCode() != 200) {
-			System.out.println("no map");
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Status Code not 200 but: " + req.getStatusCode(), 0);
 			Handler handler = new ErrorHandler();
 			handler.handle(req, resp);
+			
 		} else {
 			if(requestMap.containsKey(req.getPath())) {
-				System.out.println("yes map");
+				ChatAndSearchApplicationLogger.write(Level.INFO, "Status Code is 200 and contain path: " + req.getPath(), 0);
 				Handler handler = requestMap.get(req.getPath());
 				handler.handle(req, resp);
 			} else {
+				ChatAndSearchApplicationLogger.write(Level.INFO, "Change Status Code to 404 because path not found: " + req.getPath(), 0);
 				req.setStatusCode(404);
 				Handler handler = new ErrorHandler();
 				handler.handle(req, resp);
@@ -50,6 +52,7 @@ public class HTTPServerWorker implements Runnable{
 		int statusCode = 200;
 		if(reqs.length != 3) { //check if requestLineParts has three components
 			statusCode = 400;
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Resquest line does not have 3 components, Status Code is " + statusCode + " Length:" + reqs.length, 0);
 		} else {
 			method = reqs[0].trim();
 			path = reqs[1].trim();
@@ -57,9 +60,10 @@ public class HTTPServerWorker implements Runnable{
 		}
 		if(!protocol.equals("HTTP/1.0") && !protocol.equals("HTTP/1.1")) { //check if support the protocol version specified
 			statusCode = 400;
-			//
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Protocol not supported, Status Code is " + statusCode + " Protocol:" + protocol, 0);
 		} else if(!method.equals("GET") && !method.equals("POST")) { //check if method not get return 405
 			statusCode = 405;
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Method is not GET or POST, Status Code is " + statusCode + " Method:" + method, 0);
 		}
 		// check if there is a query string passed by the get method
 		if(path.indexOf("?") != -1) {
@@ -67,32 +71,41 @@ public class HTTPServerWorker implements Runnable{
 		}
 		try {
 			body = URLDecoder.decode(body, "UTF-8");
-			System.out.println("Body: " +body);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Body after decoding: " + body, 0);
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("Decoding error.");
 		}
 //		HTTPRequest req = new HTTPRequest(method, path, body, statusCode);
 		
 		HashMap<String, String> queryStringMap = new HashMap<String, String>();
-//		if(body.indexOf("&") != -1) {
 		if(method.equals("POST")) {
 			if(!body.equals("")) {
 				int paramNum = body.split("&").length;
-				System.out.println("paramNum" + paramNum);
+				ChatAndSearchApplicationLogger.write(Level.INFO, "Number of body parameters: " + paramNum, 0);
 				for(int i = 0; i < paramNum; i++) {
 					String queryString = body.split("&")[i];
-					int firstSignIndex = queryString.indexOf("=");
-					String key = queryString.substring(0, firstSignIndex);
-					String value = queryString.substring(firstSignIndex + 1);
-					ChatAndSearchApplicationLogger.write(Level.INFO, "Param key: " + key, 0);
-					ChatAndSearchApplicationLogger.write(Level.INFO, "Param value: " + value, 0);
+					int signIndex = queryString.indexOf("=");
+					String key = "";
+					String value = "";
+					if(signIndex == -1) { //if param is not valid
+						key = queryString;
+						statusCode = 400;
+						ChatAndSearchApplicationLogger.write(Level.INFO, "Contain invalid param: " + key + " Status Code: " + statusCode, 0);
+					} else { //if param is valid
+						key = queryString.substring(0, signIndex);
+						value = queryString.substring(signIndex + 1);
+						ChatAndSearchApplicationLogger.write(Level.INFO, "Param key: " + key, 0);
+						ChatAndSearchApplicationLogger.write(Level.INFO, "Param value: " + value, 0);
+					}
 					if(queryStringMap.containsKey(key)) {
 						statusCode = 400;
+						ChatAndSearchApplicationLogger.write(Level.INFO, "Query String Duplicate, Status Code: " + statusCode, 0);
 					}
 					queryStringMap.put(key, value);
 				}
 			} else {
 				statusCode = 400;
+				ChatAndSearchApplicationLogger.write(Level.INFO, "POST with empty body: " + statusCode, 0);
 			}
 		}
 		HTTPRequest req = new HTTPRequest();
@@ -100,6 +113,7 @@ public class HTTPServerWorker implements Runnable{
 		req.setPath(path);
 		req.setQueryStringMap(queryStringMap);
 		req.setStatusCode(statusCode);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Status Code before call handler : " + statusCode, 0);
 		HTTPResponse resp = new HTTPResponse();
 		callHandler(req, resp);
 		sendResponse(resp, writer);
@@ -108,29 +122,10 @@ public class HTTPServerWorker implements Runnable{
 	private void sendResponse(HTTPResponse resp, PrintWriter writer) {
 		String headers = resp.getHeaders();
 		String page = resp.getPage();
-//		System.out.println(headers);
-//		System.out.println(page);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "HTML Headers Response: " + headers, 0);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "HTML Page Response: " + page, 0);
 		writer.write(headers);
 		writer.write(page);
-//		System.out.println("done");
-	}
-	
-	private boolean verifyHeaderStatus(String line) {
-		boolean isValid = true;
-		System.out.println(line);
-		System.out.println(line.split(":")[0].toLowerCase());
-		String check = line.split(":")[0].toLowerCase().trim();
-		if(line.indexOf(":") == -1) { //check if header format is valid
-			System.out.println("Invalid format of headers");
-			isValid = false;
-		} else if(!HTTPConstants.headers.contains(check)) { //check if key is valid
-			System.out.println("Invalid header key");
-			isValid = false;
-		} else if(line.split(":")[1].equals("")) { //check if value is an empty string
-			System.out.println("Invalid header value");
-			isValid = false;
-		}
-		return isValid;
 	}
 	
 	public void run() {
@@ -140,9 +135,9 @@ public class HTTPServerWorker implements Runnable{
 		){
 			String headers = "";
 			String requestLine = oneLine(instream);
-			ChatAndSearchApplicationLogger.write(Level.INFO, "Request Line: " + requestLine, 0);
+			headers += requestLine + "\n";
 			String line = oneLine(instream);
-			ChatAndSearchApplicationLogger.write(Level.INFO, "Other Lines: " + line, 0);
+			headers += line + "\n";
 			int length = 0;
 			while(line != null && !line.trim().isEmpty()) {
 				headers += line + "\n";
@@ -155,19 +150,18 @@ public class HTTPServerWorker implements Runnable{
 					length = Integer.parseInt(line.split(":")[1].trim());
 				}
 			}
-			System.out.println("Request: \n" + requestLine);
-			
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Request Headers: \n" + headers, 0);
 			byte[] bytes = new byte[length];
 			int read = sock.getInputStream().read(bytes);
 			while(read < length) {
 				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
 			}
-			System.out.println("Bytes expected: " + length + " Bytes read: " + read);	
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Bytes expected: " + length + " Bytes read: " + read, 0);
 			String body = new String(bytes);
 			ChatAndSearchApplicationLogger.write(Level.INFO, "Body: " + body, 0);
 			handleRequest(requestLine, body, writer);
 		} catch (IOException e) {
-			System.out.println("error");
+			ChatAndSearchApplicationLogger.write(Level.WARNING, "Instream or PrintWriter throws IOException", 1);
 		}
 	}
 	
@@ -189,7 +183,6 @@ public class HTTPServerWorker implements Runnable{
 	
 	private void shutdown() {
 		try {
-//			writer.close();
 			sock.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
