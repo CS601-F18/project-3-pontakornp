@@ -1,4 +1,8 @@
-package cs601.project3;
+package cs601.project3.handler;
+
+import cs601.project3.http.HTTPConstants;
+import cs601.project3.http.HTTPRequest;
+import cs601.project3.http.HTTPResponse;
 
 public class ErrorHandler implements Handler {
 	public void handle(HTTPRequest req, HTTPResponse resp) {

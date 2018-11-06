@@ -1,4 +1,4 @@
-package cs601.project3;
+package cs601.project3.http;
 
 public class HTTPRequest {
 	private String method;

@@ -1,9 +1,15 @@
-package cs601.project3;
+package cs601.project3.handler;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 import javax.net.ssl.HttpsURLConnection;
+
+import cs601.project3.http.HTTPConstants;
+import cs601.project3.http.HTTPRequest;
+import cs601.project3.http.HTTPResponse;
 
 public class ChatHandler implements Handler{
 	
@@ -19,7 +25,8 @@ public class ChatHandler implements Handler{
 		}
 	}
 	
-	private String sendMessage(HTTPRequest req, HTTPResponse resp) {
+	private String getText(HTTPRequest req) {
+		String text = "";
 		System.out.println(req.getQueryString());
 		int firstSignIndex = req.getQueryString().indexOf("=");
 		String key = req.getQueryString().substring(0, firstSignIndex);
@@ -30,8 +37,34 @@ public class ChatHandler implements Handler{
 			System.out.println("Wrong message. Please try again.");
 			return getForm();
 		}
-		String message = "Nat: " + value; // to distinguish
-		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(value);
+		 // to distinguish Project three is coming from this user
+		try {
+			text = "Nat: " + value;
+			text = URLEncoder.encode(text, "UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			System.out.println("Encoded error");
+		}
+		return text;
+	}
+	private String sendMessage(HTTPRequest req, HTTPResponse resp) {
+//		System.out.println(req.getQueryString());
+//		int firstSignIndex = req.getQueryString().indexOf("=");
+//		String key = req.getQueryString().substring(0, firstSignIndex);
+//		String value = req.getQueryString().substring(firstSignIndex + 1);
+//		System.out.println(key + ":" + value);
+//		// check if query string valid
+//		if(!key.equals("message") || value.equals("")) {
+//			System.out.println("Wrong message. Please try again.");
+//			return getForm();
+//		}
+//		String message = "Nat: " + value; // to distinguish Project three is coming from this user
+//		try {
+//			String encodedMessage = URLEncoder.encode(message, "UTF-8");
+//		} catch (UnsupportedEncodingException e1) {
+//			System.out.println("Encoded error");
+//		}
+		String text = getText(req);
+		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(text);
 		String url = slackAPI.getTargetUrl();
 		String urlParam = slackAPI.getUrlParameters();
 		System.out.println(url);
@@ -105,9 +138,9 @@ public class ChatHandler implements Handler{
 				"<head><title>Send Slack Message</title></head>" + 
 				"<body>" + 
 					"<form action\"/slackbot\" method=\"post\">" +
-						"Message:<br>" + 
-						"<input type=\"text\" name=\"message\"><br>" +
-						"<input type=\"submit\" value=\"Send\">" +
+						"Message:<br/>" + 
+						"<input type=\"text\" name=\"message\"/><br/>" +
+						"<input type=\"submit\" value=\"Send\"/>" +
 					"</form>" +
 				"</body>" +
 				"</html>";

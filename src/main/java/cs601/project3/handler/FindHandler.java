@@ -1,6 +1,15 @@
-package cs601.project3;
+package cs601.project3.handler;
 
 import java.util.ArrayList;
+
+import cs601.project3.http.HTTPConstants;
+import cs601.project3.http.HTTPRequest;
+import cs601.project3.http.HTTPResponse;
+import cs601.project3.invertedindex.CustomerEngagement;
+import cs601.project3.invertedindex.InvertedIndex;
+import cs601.project3.invertedindex.InvertedIndexSingleton;
+import cs601.project3.invertedindex.QA;
+import cs601.project3.invertedindex.Review;
 
 public class FindHandler implements Handler {
 	
@@ -22,7 +31,9 @@ public class FindHandler implements Handler {
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
 		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
 		String key = req.getQueryString().split("=")[0];
-		String value = req.getQueryString().split("=")[1];
+		String value = req.getQueryString().split("=")[1].replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+		System.out.println("key: " + key);
+		System.out.println("value: " + value);
 		// check if query string valid
 		if(!key.equals("asin") || value.equals("") || (!reviewIndex.getASINMap().containsKey(value) && !qaIndex.getASINMap().containsKey(value))) {
 			System.out.println("ASIN is not found. Please try to find other ASIN.\n");
@@ -40,7 +51,6 @@ public class FindHandler implements Handler {
 						    "<th style=\"border: 1px solid #dddddd;\">Reviewer ID</th>" +
 						    "<th style=\"border: 1px solid #dddddd;\">Review Text</th>" +
 						    "<th style=\"border: 1px solid #dddddd;\">Overall Score</th>" +
-						    "<th style=\"border: 1px solid #dddddd;\">Number of Occurences</th>" +
 					    "</tr>";
 			ArrayList<CustomerEngagement> asinReviewList = reviewIndex.getASINMap().get(value);
 			for(CustomerEngagement ce: asinReviewList) {

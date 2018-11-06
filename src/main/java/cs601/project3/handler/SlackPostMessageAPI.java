@@ -1,4 +1,6 @@
-package cs601.project3;
+package cs601.project3.handler;
+
+import cs601.project3.Config;
 
 public class SlackPostMessageAPI {
 	private String url;

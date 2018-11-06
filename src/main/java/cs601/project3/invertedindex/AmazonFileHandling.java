@@ -1,4 +1,4 @@
-package cs601.project3;
+package cs601.project3.invertedindex;
 
 import java.io.BufferedReader;
 import java.io.File;

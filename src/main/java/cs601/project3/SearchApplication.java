@@ -1,5 +1,10 @@
 package cs601.project3;
 
+import cs601.project3.handler.FindHandler;
+import cs601.project3.handler.ReviewSearchHandler;
+import cs601.project3.http.HTTPServer;
+import cs601.project3.invertedindex.InvertedIndexSingleton;
+
 public class SearchApplication {
 	public static void main(String[] args) {
 		int port = 8080;

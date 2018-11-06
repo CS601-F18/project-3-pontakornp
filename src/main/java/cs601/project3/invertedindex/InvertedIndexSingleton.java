@@ -1,4 +1,6 @@
-package cs601.project3;
+package cs601.project3.invertedindex;
+
+import cs601.project3.Config;
 
 public class InvertedIndexSingleton {
 	private static InvertedIndexSingleton INSTANCE;

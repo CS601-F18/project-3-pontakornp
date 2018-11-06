@@ -1,4 +1,4 @@
-package cs601.project3;
+package cs601.project3.http;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ public class HTTPConstants{
 	public static final String METHOD_NOT_ALLOWED_HEADER = "HTTP/1.0 405 Method Not Allowed\n" +
 			"\r\n";
 	//reference: https://stackoverflow.com/questions/1005073/initialization-of-an-arraylist-in-one-line
-	public static final List<String>  headers = Arrays.asList(
+	public static final List<String> headers = Arrays.asList(
 			"a-im", 
 			"accept", 
 			"accept-charset", 

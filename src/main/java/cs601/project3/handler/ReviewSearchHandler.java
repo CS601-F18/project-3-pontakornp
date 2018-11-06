@@ -1,7 +1,15 @@
-package cs601.project3;
+package cs601.project3.handler;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+
+import cs601.project3.http.HTTPConstants;
+import cs601.project3.http.HTTPRequest;
+import cs601.project3.http.HTTPResponse;
+import cs601.project3.invertedindex.CustomerEngagementFrequency;
+import cs601.project3.invertedindex.InvertedIndex;
+import cs601.project3.invertedindex.InvertedIndexSingleton;
+import cs601.project3.invertedindex.Review;
 
 public class ReviewSearchHandler implements Handler{
 

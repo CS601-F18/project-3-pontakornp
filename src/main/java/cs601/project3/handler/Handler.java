@@ -1,4 +1,7 @@
-package cs601.project3;
+package cs601.project3.handler;
+
+import cs601.project3.http.HTTPRequest;
+import cs601.project3.http.HTTPResponse;
 
 /**
  * 
