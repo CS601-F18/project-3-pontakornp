@@ -5,24 +5,14 @@ import java.util.HashMap;
 public class HTTPRequest {
 	private String method;
 	private String path;
-	private String queryString;
 	private HashMap<String, String> queryStringMap;
 	private int statusCode;
 	
 	public HTTPRequest() {
 		this.method = "";
 		this.path = "";
-		this.queryString = "";
 		this.queryStringMap = new HashMap<String, String>();
 		this.statusCode = 200;
-	}
-	
-	public HTTPRequest(String method, String path, String queryString, HashMap<String, String> queryStringMap, int statusCode) {
-		this.method = method;
-		this.path = path;
-		this.queryString = queryString;
-		this.queryStringMap = queryStringMap;
-		this.statusCode = statusCode;
 	}
 	
 	public String getMethod() {
@@ -41,14 +31,6 @@ public class HTTPRequest {
 		this.path = path;
 	}
 	
-//	public String getQueryString() {
-//		return queryString;
-//	}
-//	
-//	public void setQueryString(String queryString) {
-//		this.queryString = queryString;
-//	}
-
 	public int getStatusCode() {
 		return statusCode;
 	}

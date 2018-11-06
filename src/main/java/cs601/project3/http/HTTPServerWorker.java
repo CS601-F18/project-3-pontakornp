@@ -1,18 +1,18 @@
 package cs601.project3.http;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Level;
 
-import javax.swing.plaf.synth.SynthSeparatorUI;
-
+import cs601.project3.ChatAndSearchApplicationLogger;
 import cs601.project3.handler.ErrorHandler;
 import cs601.project3.handler.Handler;
-import cs601.project3.handler.HandlerHelper;
 
 public class HTTPServerWorker implements Runnable{
 	private Socket sock;
@@ -84,8 +84,8 @@ public class HTTPServerWorker implements Runnable{
 					int firstSignIndex = queryString.indexOf("=");
 					String key = queryString.substring(0, firstSignIndex);
 					String value = queryString.substring(firstSignIndex + 1);
-					System.out.println(key);
-					System.out.println(value);
+					ChatAndSearchApplicationLogger.write(Level.INFO, "Param key: " + key, 0);
+					ChatAndSearchApplicationLogger.write(Level.INFO, "Param value: " + value, 0);
 					if(queryStringMap.containsKey(key)) {
 						statusCode = 400;
 					}
@@ -140,23 +140,23 @@ public class HTTPServerWorker implements Runnable{
 		){
 			String headers = "";
 			String requestLine = oneLine(instream);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Request Line: " + requestLine, 0);
 			String line = oneLine(instream);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Other Lines: " + line, 0);
 			int length = 0;
-//			int statusCode = 200;
 			while(line != null && !line.trim().isEmpty()) {
 				headers += line + "\n";
 				line = oneLine(instream);
+				ChatAndSearchApplicationLogger.write(Level.INFO, line, 0);
 				if(line == null || line.trim().isEmpty() || line.equals("")) {
 					break;
 				}
 				if(line.toLowerCase().startsWith("content-length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
 				}
-//				if(!verifyHeaderStatus(line)) {
-//					statusCode = 400;
-//				}
 			}
 			System.out.println("Request: \n" + requestLine);
+			
 			byte[] bytes = new byte[length];
 			int read = sock.getInputStream().read(bytes);
 			while(read < length) {
@@ -164,6 +164,7 @@ public class HTTPServerWorker implements Runnable{
 			}
 			System.out.println("Bytes expected: " + length + " Bytes read: " + read);	
 			String body = new String(bytes);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Body: " + body, 0);
 			handleRequest(requestLine, body, writer);
 		} catch (IOException e) {
 			System.out.println("error");

@@ -7,6 +7,7 @@ import cs601.project3.invertedindex.InvertedIndexSingleton;
 
 public class SearchApplication {
 	public static void main(String[] args) {
+		ChatAndSearchApplicationLogger.initialize(ChatApplication.class.getName(), "searchApplicationLog.txt");
 		int port = 8080;
 		HTTPServer server = new HTTPServer(port);
 		
