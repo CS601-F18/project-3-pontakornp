@@ -18,27 +18,33 @@ public class FindHandler implements Handler {
 		resp.setHeader(HTTPConstants.OK_HEADER);
 		if(req.getMethod().equals("GET")) {
 			System.out.println("GET");
-			resp.setPage(getForm());
+			doGet(resp);
 			
 		} else { // method == "POST"
 			System.out.println("POST");
-			resp.setPage(getSearchResult(req, resp));
+			doPost(req, resp);
 		}
 	}
 	
-	private String getSearchResult(HTTPRequest req, HTTPResponse resp) {
+	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
+		if (!req.getQueryStringMap().containsKey("asin") || req.getQueryStringMap().get("asin").equals("")) {
+			req.setStatusCode(400);
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			return false;
+		}
+		return true;
+	}
+	
+	private void doPost(HTTPRequest req, HTTPResponse resp) {
+		if(!isParamKeyValid(req, resp)) {
+			return;
+		}
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
 		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
-		String key = req.getQueryString().split("=")[0];
-		String value = req.getQueryString().split("=")[1].replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-		System.out.println("key: " + key);
-		System.out.println("value: " + value);
-		// check if query string valid
-		if(!key.equals("asin") || value.equals("") || (!reviewIndex.getASINMap().containsKey(value) && !qaIndex.getASINMap().containsKey(value))) {
-			System.out.println("ASIN is not found. Please try to find other ASIN.\n");
-			return getForm();
-		}
+		String value = req.getQueryStringMap().get("asin");
+		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
 		String html = "<html> " + 
 					"<head><title>Review and QA documents</title></head>" + 
 					"<body>" + 
@@ -85,10 +91,11 @@ public class FindHandler implements Handler {
 		}
 		html += "</body>" +
 				"</html>";
-		return html;
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
 	}
 	
-	private String getForm() {
+	private void doGet(HTTPResponse resp) {
 		String html = "<html> " + 
 				"<head><title>ASIN Search</title></head>" + 
 				"<body>" + 
@@ -99,6 +106,7 @@ public class FindHandler implements Handler {
 					"</form>" +
 				"</body>" +
 				"</html>";
-		return html;
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
 	}
 }

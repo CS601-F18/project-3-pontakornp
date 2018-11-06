@@ -1,8 +1,5 @@
 package cs601.project3.handler;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 import cs601.project3.http.HTTPConstants;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
@@ -15,37 +12,37 @@ public class ReviewSearchHandler implements Handler{
 
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
-		resp.setHeader(HTTPConstants.OK_HEADER);
+		
 		if(req.getMethod().equals("GET")) {
 			System.out.println("GET");
-			resp.setPage(getForm());
+//			resp.setPage(getForm());
+			doGet(resp);
 		} else { // method == "POST"
 			System.out.println("POST");
-			resp.setPage(getSearchResult(req, resp));
+//			resp.setPage(getSearchResult(req, resp));
+			
+			doPost(req, resp);
 		}
 	}
 	
-	private String getSearchResult(HTTPRequest req, HTTPResponse resp) {
+	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
+		if (!req.getQueryStringMap().containsKey("query") || req.getQueryStringMap().get("query").equals("")) {
+			req.setStatusCode(400);
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			return false;
+		}
+		return true;
+	}
+	
+	private void doPost(HTTPRequest req, HTTPResponse resp) {
+		if(!isParamKeyValid(req, resp)) {
+			return;
+		}
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
-		
-		int firstSignIndex = req.getQueryString().indexOf("=");
-		String key = req.getQueryString().substring(0, firstSignIndex);
-
-//		String key = req.getQueryString().split("=")[0];
-		String value = req.getQueryString().substring(firstSignIndex + 1);
-		System.out.println(key + ":" + value);
-		try {
-			value = URLDecoder.decode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("An issue occurs when decoding parameters. Please try again.");
-		}
-		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-		// check if query string valid
-		if(!key.equals("query") || value.equals("") || !reviewIndex.getTermMap().containsKey(value)) {
-			System.out.println("Search term is not found. Please try other search term.\n");
-			return getForm();
-		}
+		String value = req.getQueryStringMap().get("query");
+		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
 		int resultSize = reviewIndex.getTermMap().get(value).size();
 		System.out.println("Result Size:" + resultSize);
 		String html = "<html> " + 
@@ -74,21 +71,22 @@ public class ReviewSearchHandler implements Handler{
 		html += "</table>" +
 				"</body>" +
 				"</html>";
-		return html;
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
 	}
 	
-	private String getForm() {
+	private void doGet(HTTPResponse resp) {
 		String html = "<html> " + 
 				"<head><title>Review Search</title></head>" + 
 				"<body>" + 
-					"<form action\"/reviewsearch\" method=\"post\">" +
-						"Review search:<br>" + 
-						"<input type=\"text\" name=\"query\"><br>" +
-						"<input type=\"submit\" value=\"Search\">" +
+					"<form action=\"/reviewsearch\" method=\"post\">" +
+						"Review search:<br/>" + 
+						"<input type=\"text\" name=\"query\"/><br/>" +
+						"<input type=\"submit\" value=\"Search\"/>" +
 					"</form>" +
 				"</body>" +
 				"</html>";
-		return html;
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
 	}
-	
 }

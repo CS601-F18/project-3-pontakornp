@@ -31,25 +31,25 @@ public class Review extends CustomerEngagement{
 		return this.reviewerID;
 	}
 	
-	public void setReviewerID(String reviewerID) {
-		this.reviewerID = reviewerID;
-	}
+//	public void setReviewerID(String reviewerID) {
+//		this.reviewerID = reviewerID;
+//	}
 	
 	public String getReviewText() {
 		return this.reviewText;
 	}
 	
-	public void setReviewText(String value) {
-		this.reviewText = value;
-	}
+//	public void setReviewText(String value) {
+//		this.reviewText = value;
+//	}
 	
 	public double getOverall() {
 		return this.overall;
 	}
 	
-	public void setOverall(double overall) {
-		this.overall = overall;
-	}
+//	public void setOverall(double overall) {
+//		this.overall = overall;
+//	}
 	
 	public String toString() {
 		return "Reviewer ID: " + reviewerID + "\n"

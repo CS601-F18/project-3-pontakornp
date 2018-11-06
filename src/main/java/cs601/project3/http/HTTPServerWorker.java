@@ -12,6 +12,7 @@ import javax.swing.plaf.synth.SynthSeparatorUI;
 
 import cs601.project3.handler.ErrorHandler;
 import cs601.project3.handler.Handler;
+import cs601.project3.handler.HandlerHelper;
 
 public class HTTPServerWorker implements Runnable{
 	private Socket sock;
@@ -49,28 +50,56 @@ public class HTTPServerWorker implements Runnable{
 		int statusCode = 200;
 		if(reqs.length != 3) { //check if requestLineParts has three components
 			statusCode = 400;
-			System.out.println("first");
 		} else {
 			method = reqs[0].trim();
 			path = reqs[1].trim();
 			protocol = reqs[2].trim();
 		}
-		if(!protocol.equals("HTTP/1.1") && !protocol.equals("HTTP/1.0")) { //check if support the protocol version specified
+		if(!protocol.equals("HTTP/1.0") && !protocol.equals("HTTP/1.1")) { //check if support the protocol version specified
 			statusCode = 400;
+			//
 		} else if(!method.equals("GET") && !method.equals("POST")) { //check if method not get return 405
 			statusCode = 405;
 		}
-		int queryStringIndex = path.indexOf("?");
 		// check if there is a query string passed by the get method
-		if(queryStringIndex != -1) {
-			path = path.substring(0, queryStringIndex);
+		if(path.indexOf("?") != -1) {
+			path = path.substring(0, path.indexOf("?"));
 		}
 		try {
 			body = URLDecoder.decode(body, "UTF-8");
+			System.out.println("Body: " +body);
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("Decoding error.");
 		}
-		HTTPRequest req = new HTTPRequest(method, path, body, statusCode);
+//		HTTPRequest req = new HTTPRequest(method, path, body, statusCode);
+		
+		HashMap<String, String> queryStringMap = new HashMap<String, String>();
+//		if(body.indexOf("&") != -1) {
+		if(method.equals("POST")) {
+			if(!body.equals("")) {
+				int paramNum = body.split("&").length;
+				System.out.println("paramNum" + paramNum);
+				for(int i = 0; i < paramNum; i++) {
+					String queryString = body.split("&")[i];
+					int firstSignIndex = queryString.indexOf("=");
+					String key = queryString.substring(0, firstSignIndex);
+					String value = queryString.substring(firstSignIndex + 1);
+					System.out.println(key);
+					System.out.println(value);
+					if(queryStringMap.containsKey(key)) {
+						statusCode = 400;
+					}
+					queryStringMap.put(key, value);
+				}
+			} else {
+				statusCode = 400;
+			}
+		}
+		HTTPRequest req = new HTTPRequest();
+		req.setMethod(method);
+		req.setPath(path);
+		req.setQueryStringMap(queryStringMap);
+		req.setStatusCode(statusCode);
 		HTTPResponse resp = new HTTPResponse();
 		callHandler(req, resp);
 		sendResponse(resp, writer);
@@ -127,7 +156,7 @@ public class HTTPServerWorker implements Runnable{
 //					statusCode = 400;
 //				}
 			}
-			System.out.println("Request: \n" + headers);
+			System.out.println("Request: \n" + requestLine);
 			byte[] bytes = new byte[length];
 			int read = sock.getInputStream().read(bytes);
 			while(read < length) {

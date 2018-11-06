@@ -14,55 +14,57 @@ import cs601.project3.http.HTTPResponse;
 public class ChatHandler implements Handler{
 	
 	public void handle(HTTPRequest req, HTTPResponse resp) {
-		//determine get or post
-		resp.setHeader(HTTPConstants.OK_HEADER);
+		//determine get or post]
 		if(req.getMethod().equals("GET")) {
 			System.out.println("GET");
-			resp.setPage(getForm());
+			doGet(resp);
 		} else { // method == "POST"
-			System.out.println("POST");
-			resp.setPage(sendMessage(req, resp));
+			System.out.println("POST");;
+			doPost(req, resp);
 		}
 	}
 	
 	private String getText(HTTPRequest req) {
 		String text = "";
-		System.out.println(req.getQueryString());
-		int firstSignIndex = req.getQueryString().indexOf("=");
-		String key = req.getQueryString().substring(0, firstSignIndex);
-		String value = req.getQueryString().substring(firstSignIndex + 1);
-		System.out.println(key + ":" + value);
-		// check if query string valid
-		if(!key.equals("message") || value.equals("")) {
-			System.out.println("Wrong message. Please try again.");
-			return getForm();
-		}
-		 // to distinguish Project three is coming from this user
+		String value = req.getQueryStringMap().get("message");
 		try {
-			text = "Nat: " + value;
+			text = "Nat: " + value; // to distinguish Project three is coming from this user
 			text = URLEncoder.encode(text, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			System.out.println("Encoded error");
 		}
 		return text;
 	}
-	private String sendMessage(HTTPRequest req, HTTPResponse resp) {
-//		System.out.println(req.getQueryString());
-//		int firstSignIndex = req.getQueryString().indexOf("=");
-//		String key = req.getQueryString().substring(0, firstSignIndex);
-//		String value = req.getQueryString().substring(firstSignIndex + 1);
-//		System.out.println(key + ":" + value);
-//		// check if query string valid
-//		if(!key.equals("message") || value.equals("")) {
-//			System.out.println("Wrong message. Please try again.");
-//			return getForm();
-//		}
-//		String message = "Nat: " + value; // to distinguish Project three is coming from this user
-//		try {
-//			String encodedMessage = URLEncoder.encode(message, "UTF-8");
-//		} catch (UnsupportedEncodingException e1) {
-//			System.out.println("Encoded error");
-//		}
+	
+	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
+		if (!req.getQueryStringMap().containsKey("message") || req.getQueryStringMap().get("message").equals("")) {
+			req.setStatusCode(400);
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			return false;
+		}
+		return true;
+	}
+	
+	private void doGet(HTTPResponse resp) {
+		String html = "<html> " + 
+				"<head><title>Send Slack Message</title></head>" + 
+				"<body>" + 
+					"<form action=\"/slackbot\" method=\"post\">" +
+						"Message:<br/>" + 
+						"<input type=\"text\" name=\"message\"/><br/>" +
+						"<input type=\"submit\" value=\"Send\"/>" +
+					"</form>" +
+				"</body>" +
+				"</html>";
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html);
+	}
+	
+	private void doPost(HTTPRequest req, HTTPResponse resp) {
+		if(!isParamKeyValid(req, resp)) {
+			return;
+		}
 		String text = getText(req);
 		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(text);
 		String url = slackAPI.getTargetUrl();
@@ -88,28 +90,20 @@ public class ChatHandler implements Handler{
 		    if (connection.getResponseCode() < HttpsURLConnection.HTTP_BAD_REQUEST) {
 		        inputStream = connection.getInputStream();
 		        System.out.println("Success.");
-		        return getSuccessResponse();
-//		        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-//			    StringBuilder response = new StringBuilder();
-//			    String line;
-//			    while ((line = reader.readLine()) != null) {
-//			      response.append(line);
-//			      response.append('\r');
-//			    }
-//			    reader.close();
-//			    return response.toString();
+		        resp.setHeader(HTTPConstants.OK_HEADER);
+		        resp.setPage(getSuccessResponse());
 		    } else {
 		    	inputStream = connection.getErrorStream();
 		    	System.out.println("Bad Request.");
-		    	return getErrorResponse();
+		    	resp.setHeader(HTTPConstants.BAD_REQUEST_HEADER);
+		    	resp.setPage(getErrorResponse());
 		    }
-		    
-		    
-//		    return getSuccessResponse();
 		} catch (IOException e) {
 			System.out.println("Connection fail.");
-			return getErrorResponse();
+			resp.setHeader(HTTPConstants.BAD_REQUEST_HEADER);
+			resp.setPage(getErrorResponse());
 		}
+		
 		
 	}
 	
@@ -128,20 +122,6 @@ public class ChatHandler implements Handler{
 				"<head><title>Send Slack Message</title></head>" + 
 				"<body>" + 
 					"<p>There's some problem when sending message. Please try again.</p>" +
-				"</body>" +
-				"</html>";
-		return html;
-	}
-	
-	private String getForm() {
-		String html = "<html> " + 
-				"<head><title>Send Slack Message</title></head>" + 
-				"<body>" + 
-					"<form action\"/slackbot\" method=\"post\">" +
-						"Message:<br/>" + 
-						"<input type=\"text\" name=\"message\"/><br/>" +
-						"<input type=\"submit\" value=\"Send\"/>" +
-					"</form>" +
 				"</body>" +
 				"</html>";
 		return html;

@@ -28,17 +28,17 @@ public class QA extends CustomerEngagement {
 		return question;
 	}
 	
-	public void setQuestion(String value) {
-		question = value;
-	}
+//	public void setQuestion(String value) {
+//		question = value;
+//	}
 	
 	public String getAnswer() {
 		return answer;
 	}
 	
-	public void setAnswer(String value) {
-		answer = value;
-	}
+//	public void setAnswer(String value) {
+//		answer = value;
+//	}
 	
 	public String toString() {
 		return "ASIN: " + asin + "\n"
