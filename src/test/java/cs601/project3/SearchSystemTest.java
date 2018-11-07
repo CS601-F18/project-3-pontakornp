@@ -22,8 +22,8 @@ public class SearchSystemTest {
 		html.append("</form>");
 		html.append("</body>");
 		html.append("</html>");
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/reviewsearch"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/reviewsearch?unused=params"));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/reviewsearch", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/reviewsearch?unused=params", ""));
 	}
 	
 	@Test
@@ -40,8 +40,8 @@ public class SearchSystemTest {
 		html.append("</form>");
 		html.append("</body>");
 		html.append("</html>");
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/find"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/find?unused=params"));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/find", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/find?unused=params", ""));
 	}
 	
 	@Test
@@ -64,8 +64,8 @@ public class SearchSystemTest {
 		html.append("<p>Invalid request.</p>");
 		html.append("</body>");
 		html.append("</html>");
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/badrequest"));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/badrequest", ""));
 	}
 	
 	@Test
@@ -78,12 +78,12 @@ public class SearchSystemTest {
 		html.append("<p>Page not supported.</p>");
 		html.append("</body>");
 		html.append("</html>");
-		assertEquals(html.toString(), HTTPClient.test("localhost", "PUT", "/"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "DELETE", "/"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "PUT", "/reviewsearch"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "DELETE", "/reviewsearch"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "PUT", "/find"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "DELETE", "/find"));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "PUT", "/", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "DELETE", "/", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "PUT", "/reviewsearch", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "DELETE", "/reviewsearch", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "PUT", "/find", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "DELETE", "/find", ""));
 	}
 	
 	@Test
@@ -96,10 +96,7 @@ public class SearchSystemTest {
 		html.append("<p>Page not found.</p>");
 		html.append("</body>");
 		html.append("</html>");
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/"));
-		assertEquals(html.toString(), HTTPClient.test("localhost", "GET", "/unknownpath"));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/", ""));
+		assertEquals(html.toString(), HTTPClient.connect("localhost", "GET", "/unknownpath", ""));
 	}
-	
-	
-	
 }

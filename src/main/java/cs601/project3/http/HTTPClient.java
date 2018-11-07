@@ -3,7 +3,9 @@ package cs601.project3.http;
 import java.util.*;
 import java.util.logging.Level;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.swing.plaf.synth.SynthSeparatorUI;
+
 
 import cs601.project3.ChatAndSearchApplicationLogger;
 
@@ -14,30 +16,30 @@ public class HTTPClient {
 	
 	public static int PORT = 9090;
 	
-	public static String test(String host, String method, String path) {
-		
+	public static String connect(String host, String method, String path, String query) {
 		StringBuffer buf = new StringBuffer();
-		
 		try (
 				Socket sock = new Socket(host, PORT); //create a connection to the web server
 				OutputStream out = sock.getOutputStream(); //get the output stream from socket
 				InputStream instream = sock.getInputStream(); //get the input stream from socket
 				//wrap the input stream to make it easier to read from
 				BufferedReader reader = new BufferedReader(new InputStreamReader(instream))
-			) { 
-
+			) {
 			//send request
-			String request = getRequest(host, method, path);
+			String request = "";
+			if(query.equals("")) {
+				request = getRequest(host, method, path);
+			} else {
+				request = getRequest(host, method, path, query);
+			}
 			out.write(request.getBytes());
 			out.flush();
-
 			//receive response
 			//note: a better approach would be to first read headers, determine content length
 			//then read the remaining bytes as a byte stream
 			int length = 0;
 			String line = reader.readLine();
 			while(line != null) {	
-				
 				if(line.toLowerCase().startsWith("content-length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
 				}
@@ -49,43 +51,10 @@ public class HTTPClient {
 				line = reader.readLine();
 			}
 			return line;
-			
-//			String headers = "";
-//			String requestLine = oneLine(instream);
-//			headers += requestLine + "\n";
-//			String line = oneLine(instream);
-//			int length = 0;
-//			System.out.println("whyyy");
-//			while(line != null && !line.trim().isEmpty()) {
-//				headers += line + "\n";
-//				line = oneLine(instream);
-//				System.out.println(line);
-////				if(line == null || line.trim().isEmpty() || line.equals("")) {
-////					System.out.println("why");
-////					break;
-////				}
-//				if(line.toLowerCase().startsWith("content-length:")) {
-//					length = Integer.parseInt(line.split(":")[1].trim());
-//					System.out.println("length " + line);
-//				} else {
-//					System.out.println("not content-length " + line);
-//				}
-//			}
-//			System.out.println(headers);
-//			byte[] bytes = new byte[length];
-//			int read = sock.getInputStream().read(bytes);
-//			while(read < length) {
-//				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
-//			}
-//			System.out.println("Bytes expected: " + length + " Bytes read: " + read);
-//			String body = new String(bytes);
-//			return body;
-
 		} catch (IOException e) {
 			System.out.println("Error on socket or when reading input");
 		}
-//		return buf.toString();
-		return "Nothing";
+		return buf.toString();
 	}
 
 	private static String getRequest(String host, String method, String path) {
@@ -96,24 +65,20 @@ public class HTTPClient {
 		return request;
 	}
 	
-	/**
-	 * Read a line of bytes until \n character or stream has ended.
-	 * @param instream
-	 * @return
-	 * @throws IOException
-	 */
-	private static String oneLine(InputStream instream) throws IOException {
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		byte b = (byte) instream.read();
-		while(b != '\n' && (int)b != -1) {
-			bout.write(b);
-			b = (byte) instream.read();
-		}
-		return new String(bout.toByteArray());
+	private static String getRequest(String host, String method, String path, String query) {
+		String request = method + " " + path + " HTTP/1.0" + "\n" //GET request
+				+ "Host: " + host + "\n" //Host header required for HTTP/1.1
+				+ "Content-Length: " + query.getBytes().length + "\n"
+				+ "Connection: close\n" //make sure the server closes the connection after we fetch one page
+				+ "\r\n"
+				+ query;
+		System.out.println(request);
+		return request;
 	}
 	
 //	public static void main(String[] args) {
 //		PORT = 8080;
-//		System.out.println(test("localhost", "GET", "/reviewsearch"));
+////		System.out.println(test("localhost", "GET", "/reviewsearch"));
+//		System.out.println(connect("localhost", "POST", "/reviewsearch","query=tree"));
 //	}
 }
