@@ -58,7 +58,7 @@ public class ChatHandler implements Handler{
 	
 	/**
 	 * 
-	 * Post a message to Slakc application and update the response to have a web page show the result of posting
+	 * Post a message to Slack application and update the response to have a web page show the result of posting
 	 * 
 	 * @param req - Http request
 	 * @param resp - Http resposne
@@ -83,16 +83,11 @@ public class ChatHandler implements Handler{
 		    DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 		    outputStream.writeBytes(urlParam);
 		    outputStream.close();
-		    //get response
-		    
 		    //reference: https://stackoverflow.com/questions/613307/read-error-response-body-in-java
-		    InputStream inputStream;
 		    if (connection.getResponseCode() < HttpsURLConnection.HTTP_BAD_REQUEST) {
-		        inputStream = connection.getInputStream();
 		        resp.setHeader(HTTPConstants.OK_HEADER);
 		        resp.setPage(getSuccessResponse());
 		    } else {
-		    	inputStream = connection.getErrorStream();
 		    	resp.setHeader(HTTPConstants.BAD_REQUEST_HEADER);
 		    	resp.setPage(getErrorResponse());
 		    }
