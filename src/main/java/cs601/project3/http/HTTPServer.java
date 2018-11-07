@@ -1,9 +1,6 @@
 package cs601.project3.http;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -18,6 +15,7 @@ import cs601.project3.handler.Handler;
 /**
  * 
  * Server handles the request of the client by waiting for the request and response back.
+ * Handles multiple clients by using thread pools
  * 
  */
 public class HTTPServer{
@@ -36,6 +34,9 @@ public class HTTPServer{
 		}
 	}
 	
+	/**
+	 * Starts the server
+	 */
 	public void startup() {
 		while(running) {
 			ChatAndSearchApplicationLogger.write(Level.INFO, "Server listens", 0);
@@ -48,10 +49,19 @@ public class HTTPServer{
 		}
 	}
 	
+	/**
+	 * Adds mapping that has command/path as key and handler as a value
+	 * 
+	 * @param command
+	 * @param handler
+	 */
 	public void addMapping(String command, Handler handler) {
 		requestMap.put(command, handler);
 	}
 	
+	/**
+	 * shut down thread pool
+	 */
 	public void shutdown() {
 		running = false;
 		pool.shutdown();

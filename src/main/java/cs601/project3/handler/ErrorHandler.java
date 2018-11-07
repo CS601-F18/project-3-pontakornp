@@ -7,7 +7,18 @@ import cs601.project3.http.HTTPConstants;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Handles invalid request by returning appropriate html message
+ * 
+ */
 public class ErrorHandler implements Handler {
+	
+	/**
+	 * Handles message to be shown the user for different types of error request
+	 */
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		int statusCode = req.getStatusCode();
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Error Handler status code: " + statusCode, 0);

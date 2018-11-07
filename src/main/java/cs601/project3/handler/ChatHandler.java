@@ -15,10 +15,19 @@ import cs601.project3.http.HTTPConstants;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Handles requests that will send chat to Slack application
+ * 
+ */
 public class ChatHandler implements Handler{
-	
+	/**
+	 * Sends request/response to appropriate method
+	 */
 	public void handle(HTTPRequest req, HTTPResponse resp) {
-		//determine get or post]
+		//determine get or post method
 		if(req.getMethod().equals("GET")) {
 			doGet(resp);
 		} else { // method == "POST"
@@ -26,6 +35,11 @@ public class ChatHandler implements Handler{
 		}
 	}
 	
+	/**
+	 * Update the response to have a web page for user to input message to post to Slack application
+	 * 
+	 * @param resp - Http response
+	 */
 	private void doGet(HTTPResponse resp) {
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");
@@ -42,6 +56,13 @@ public class ChatHandler implements Handler{
 		resp.setPage(html.toString());
 	}
 	
+	/**
+	 * 
+	 * Post a message to Slakc application and update the response to have a web page show the result of posting
+	 * 
+	 * @param req - Http request
+	 * @param resp - Http resposne
+	 */
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
 		if(!isParamKeyValid(req, resp)) {
 			return;
@@ -82,6 +103,13 @@ public class ChatHandler implements Handler{
 		}
 	}
 	
+	/**
+	 * Checks if there's a duplicated valid parameter
+	 * 
+	 * @param req - Http Request
+	 * @param resp - Http Response
+	 * @return true or false
+	 */
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("message") || req.getQueryStringMap().get("message").equals("")) {
 			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map does not contain main param or value is null", 0);
@@ -93,6 +121,12 @@ public class ChatHandler implements Handler{
 		return true;
 	}
 	
+	/**
+	 * Helper method for doPost method that return the text to be posted to Slack application
+	 * 
+	 * @param req - Http request
+	 * @return text to be posted to Slack
+	 */
 	private String getText(HTTPRequest req) {
 		String text = "";
 		String value = req.getQueryStringMap().get("message");
@@ -105,6 +139,11 @@ public class ChatHandler implements Handler{
 		return text;
 	}
 	
+	/**
+	 * Html tag when Slack message is successfully sent.
+	 * 
+	 * @return html string
+	 */
 	private String getSuccessResponse() {
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");
@@ -116,6 +155,11 @@ public class ChatHandler implements Handler{
 		return html.toString();
 	}
 	
+	/**
+	 * Html tag when Slack message has failed to be sent.
+	 * 
+	 * @return html string
+	 */
 	private String getErrorResponse() {
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");

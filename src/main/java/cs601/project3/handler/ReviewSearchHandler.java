@@ -14,8 +14,17 @@ import cs601.project3.invertedindex.InvertedIndex;
 import cs601.project3.invertedindex.InvertedIndexSingleton;
 import cs601.project3.invertedindex.Review;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Handles requests that will search for review data by search keyword
+ * 
+ */
 public class ReviewSearchHandler implements Handler{
-
+	/**
+	 * Sends request/response to appropriate method
+	 */
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
 		if(req.getMethod().equals("GET")) {
@@ -25,6 +34,11 @@ public class ReviewSearchHandler implements Handler{
 		}
 	}
 	
+	/**
+	 * Update the response to have a web page for user to input search keyword to return review data
+	 * 
+	 * @param resp - Http response
+	 */
 	private void doGet(HTTPResponse resp) {
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");
@@ -41,6 +55,12 @@ public class ReviewSearchHandler implements Handler{
 		resp.setPage(html.toString());
 	}
 	
+	/**
+	 * Update the response to have a web page that contains the result of the term search
+	 * 
+	 * @param req - Http request
+	 * @param resp - Http response
+	 */
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
 		if(!isParamKeyValid(req, resp)) {
 			return;
@@ -88,6 +108,13 @@ public class ReviewSearchHandler implements Handler{
 		resp.setPage(html.toString());
 	}
 	
+	/**
+	 * Checks if there's a duplicated valid parameter
+	 * 
+	 * @param req - Http Request
+	 * @param resp - Http Response
+	 * @return true or false
+	 */
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("query") || req.getQueryStringMap().get("query").equals("")) {
 			req.setStatusCode(400);

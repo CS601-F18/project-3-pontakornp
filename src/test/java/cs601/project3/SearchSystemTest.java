@@ -1,17 +1,15 @@
 package cs601.project3;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.HashMap;
-import java.util.logging.Level;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.Test;
-
 import cs601.project3.http.HTTPClient;
-import cs601.project3.http.HTTPRequest;
-import cs601.project3.http.HTTPResponse;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Performs JUnit system test for search application
+ */
 public class SearchSystemTest {
 	
 	@Test

@@ -1,21 +1,29 @@
 package cs601.project3.http;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.Socket;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.swing.plaf.synth.SynthSeparatorUI;
-
-
-import cs601.project3.ChatAndSearchApplicationLogger;
-
-import java.io.*;
-import java.net.*;
-
+/**
+ * This HTTP Client is used for JUnit testing
+ * @author pontakornp
+ *
+ */
 public class HTTPClient {
-	
 	public static int PORT = 8080;
 	
+	/**
+	 * Make a connection to input url to return request line
+	 * 
+	 * @param host
+	 * @param method
+	 * @param path
+	 * @param query
+	 * @return
+	 */
 	public static String getRequestLine(String host, String method, String path, String query) {
 		try (
 				Socket sock = new Socket(host, PORT); //create a connection to the web server
@@ -43,6 +51,15 @@ public class HTTPClient {
 		return "";
 	}
 	
+	/**
+	 * Make a connection to a url to return the body
+	 * 
+	 * @param host
+	 * @param method
+	 * @param path
+	 * @param query
+	 * @return
+	 */
 	public static String connect(String host, String method, String path, String query) {
 		StringBuffer buf = new StringBuffer();
 		try (
@@ -62,13 +79,8 @@ public class HTTPClient {
 			out.write(request.getBytes());
 			out.flush();
 			//receive response
-			int length = 0;
 			String line = reader.readLine();
-			String requestLine = line;
-			while(line != null) {	
-				if(line.toLowerCase().startsWith("content-length:")) {
-					length = Integer.parseInt(line.split(":")[1].trim());
-				}
+			while(line != null) {
 				buf.append(line + "\n"); //append the newline stripped by readline
 				if(line.equals("")) {
 					line = reader.readLine();
@@ -82,7 +94,15 @@ public class HTTPClient {
 		}
 		return "";
 	}
-
+	
+	/**
+	 * Make a request by using host, method, and path
+	 * 
+	 * @param host
+	 * @param method
+	 * @param path
+	 * @return
+	 */
 	private static String getRequest(String host, String method, String path) {
 		String request = method + " " + path + " HTTP/1.0" + "\n" //GET request
 				+ "Host: " + host + "\n" //Host header required for HTTP/1.1
@@ -91,6 +111,15 @@ public class HTTPClient {
 		return request;
 	}
 	
+	/**
+	 * Make a request by using host, method, path, and query string
+	 * 
+	 * @param host
+	 * @param method
+	 * @param path
+	 * @param query
+	 * @return
+	 */
 	private static String getRequest(String host, String method, String path, String query) {
 		String request = method + " " + path + " HTTP/1.0" + "\n" //GET request
 				+ "Host: " + host + "\n" //Host header required for HTTP/1.1
@@ -101,10 +130,4 @@ public class HTTPClient {
 		System.out.println(request);
 		return request;
 	}
-	
-//	public static void main(String[] args) {
-//		PORT = 8080;
-////		System.out.println(test("localhost", "GET", "/reviewsearch"));
-//		System.out.println(connect("localhost", "POST", "/reviewsearch","query=tree"));
-//	}
 }

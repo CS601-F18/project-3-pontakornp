@@ -15,8 +15,17 @@ import cs601.project3.invertedindex.InvertedIndexSingleton;
 import cs601.project3.invertedindex.QA;
 import cs601.project3.invertedindex.Review;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Handles requests that will find review/qa data by asin search
+ * 
+ */
 public class FindHandler implements Handler {
-	
+	/**
+	 * Sends request/response to appropriate method
+	 */
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
 		resp.setHeader(HTTPConstants.OK_HEADER);
@@ -27,6 +36,11 @@ public class FindHandler implements Handler {
 		}
 	}
 	
+	/**
+	 * Update the response to have a web page for user to input search to find review/qa data by asin
+	 * 
+	 * @param resp - Http response
+	 */
 	private void doGet(HTTPResponse resp) {
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");
@@ -43,6 +57,12 @@ public class FindHandler implements Handler {
 		resp.setPage(html.toString());
 	}
 	
+	/**
+	 * Update the respone to have a web page that contains the result of the asin search
+	 * 
+	 * @param req - Http request
+	 * @param resp - Http response
+	 */
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
 		if(!isParamKeyValid(req, resp)) {
 			return;
@@ -109,6 +129,13 @@ public class FindHandler implements Handler {
 		resp.setPage(html.toString());
 	}
 	
+	/**
+	 * Checks if there's a duplicated valid parameter
+	 * 
+	 * @param req - Http Request
+	 * @param resp - Http Response
+	 * @return true or false
+	 */
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("asin") || req.getQueryStringMap().get("asin").equals("")) {
 			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map does not contain main param or value is null", 0);

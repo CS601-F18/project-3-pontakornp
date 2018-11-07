@@ -1,7 +1,11 @@
 package cs601.project3.http;
 
-import java.util.*;
-
+/**
+ *
+ * @author pontakornp
+ *
+ *  Includes appropriate HTTP headers
+ */
 public class HTTPConstants{
 	public static final String OK_HEADER = "HTTP/1.0 200 OK\n";
 	public static final String BAD_REQUEST_HEADER = "HTTP/1.0 400 Bad Request\n";

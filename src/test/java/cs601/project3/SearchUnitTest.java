@@ -1,17 +1,16 @@
 package cs601.project3;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.HashMap;
-
 import org.junit.Test;
-
-import cs601.project3.handler.Handler;
-import cs601.project3.handler.ReviewSearchHandler;
 import cs601.project3.http.HTTPClient;
-import cs601.project3.http.HTTPRequest;
-import cs601.project3.http.HTTPResponse;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Perform JUnit unit test for search application
+ *
+ */
 public class SearchUnitTest {
 	
 	@Test
@@ -65,18 +64,4 @@ public class SearchUnitTest {
 		assertEquals(htmlString, HTTPClient.getRequestLine("localhost", "GET", "/", ""));
 		assertEquals(htmlString, HTTPClient.getRequestLine("localhost", "GET", "/unknownpath", ""));
 	}
-	
-//	@Test
-//	public void testReviewSearchIsParamKeyValid() {
-//		HTTPRequest req = new HTTPRequest();
-//		req.setMethod("GET");
-//		req.setPath("/reviewsearch");
-//		HashMap<String, String> queryStringMap = new HashMap<String, String>();
-//		queryStringMap.put("query", "they");
-//		req.setQueryStringMap(queryStringMap);
-//		req.setStatusCode(200);
-//		HTTPResponse resp = new HTTPResponse();
-//		Handler handler = new ReviewSearchHandler();
-//		handler.
-//	}
 }

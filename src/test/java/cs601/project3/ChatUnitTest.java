@@ -6,6 +6,13 @@ import org.junit.Test;
 
 import cs601.project3.http.HTTPClient;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Performs JUnit unit test for chat application
+ * 
+ */
 public class ChatUnitTest {
 	
 	@Test

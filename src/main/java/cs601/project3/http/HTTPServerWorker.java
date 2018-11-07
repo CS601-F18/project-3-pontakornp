@@ -10,13 +10,16 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import cs601.project3.ChatAndSearchApplicationLogger;
-import cs601.project3.SearchApplication;
 import cs601.project3.handler.ErrorHandler;
 import cs601.project3.handler.Handler;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ *	Works as a thread of Http server to handle each client
+ */
 public class HTTPServerWorker implements Runnable{
 	private Socket sock;
 	private HashMap<String, Handler> requestMap;
@@ -26,6 +29,9 @@ public class HTTPServerWorker implements Runnable{
 		this.requestMap = requestMap;
 	}
 	
+	/**
+	 * Handles request and send response to client
+	 */
 	public void run() {
 		try (
 			InputStream instream = sock.getInputStream();
@@ -77,6 +83,12 @@ public class HTTPServerWorker implements Runnable{
 		return new String(bout.toByteArray());
 	}
 	
+	/**
+	 * Handles request by setting appropriate status for each request and call other methods to help
+	 * @param requestLine
+	 * @param body
+	 * @param writer
+	 */
 	private void handleRequest(String requestLine, String body, PrintWriter writer) {
 		String[] reqs = requestLine.split(" ");
 		String method = "";
@@ -150,6 +162,12 @@ public class HTTPServerWorker implements Runnable{
 		sendResponse(resp, writer);
 	}
 	
+	/**
+	 * Calls appropriate handler
+	 * 
+	 * @param req
+	 * @param resp
+	 */
 	private void callHandler(HTTPRequest req, HTTPResponse resp) {
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Handle method: " + req.getMethod(), 0);
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Handle path: " + req.getPath(), 0);
@@ -172,6 +190,12 @@ public class HTTPServerWorker implements Runnable{
 		}
 	}
 	
+	/**
+	 * Sends response to client
+	 * 
+	 * @param resp
+	 * @param writer
+	 */
 	private void sendResponse(HTTPResponse resp, PrintWriter writer) {
 		String headers = resp.getHeaders();
 		String page = resp.getPage();
@@ -181,14 +205,5 @@ public class HTTPServerWorker implements Runnable{
 		headers += contentLengthLine + "\r\n";
 		writer.write(headers);
 		writer.write(page);
-	}
-
-	private void shutdown() {
-		try {
-			sock.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

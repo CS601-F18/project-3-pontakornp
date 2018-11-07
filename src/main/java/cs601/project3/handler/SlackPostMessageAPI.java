@@ -2,6 +2,13 @@ package cs601.project3.handler;
 
 import cs601.project3.Config;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Includes data needed to post to Slack using Slack API
+ *
+ */
 public class SlackPostMessageAPI {
 	private String url;
 	private String method;
@@ -66,6 +73,4 @@ public class SlackPostMessageAPI {
 	public String getUrlParameters() {
 		return "channel=" + channel + "&text=" + text;
 	}
-
-	
 }

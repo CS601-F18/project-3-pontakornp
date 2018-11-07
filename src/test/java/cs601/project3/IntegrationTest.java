@@ -13,6 +13,13 @@ import cs601.project3.handler.ReviewSearchHandler;
 import cs601.project3.http.HTTPRequest;
 import cs601.project3.http.HTTPResponse;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * Performs JUnit integration test for chat and search applications
+ *
+ */
 public class IntegrationTest {
 	
 	@Test

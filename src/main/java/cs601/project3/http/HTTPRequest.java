@@ -2,6 +2,13 @@ package cs601.project3.http;
 
 import java.util.HashMap;
 
+/**
+ * 
+ * @author pontakornp
+ *
+ * HTTP Request stores method, path, query string map, and status code of the request
+ *
+ */
 public class HTTPRequest {
 	private String method;
 	private String path;
