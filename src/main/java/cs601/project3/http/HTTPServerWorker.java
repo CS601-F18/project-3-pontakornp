@@ -151,7 +151,8 @@ public class HTTPServerWorker implements Runnable{
 	}
 	
 	private void callHandler(HTTPRequest req, HTTPResponse resp) {
-		System.out.println(req.getPath());
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Handle method: " + req.getMethod(), 0);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Handle path: " + req.getPath(), 0);
 		if(req.getStatusCode() != 200) {
 			ChatAndSearchApplicationLogger.write(Level.INFO, "Status Code not 200 but: " + req.getStatusCode(), 0);
 			Handler handler = new ErrorHandler();

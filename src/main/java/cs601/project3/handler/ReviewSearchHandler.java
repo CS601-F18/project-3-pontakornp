@@ -19,10 +19,8 @@ public class ReviewSearchHandler implements Handler{
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post
 		if(req.getMethod().equals("GET")) {
-			ChatAndSearchApplicationLogger.write(Level.INFO, "GET Handle method: " + req.getMethod(), 0);
 			doGet(resp);
 		} else { // method == "POST"
-			ChatAndSearchApplicationLogger.write(Level.INFO, "POST Handle method: " + req.getMethod(), 0);
 			doPost(req, resp);
 		}
 	}
@@ -49,11 +47,7 @@ public class ReviewSearchHandler implements Handler{
 		}
 		InvertedIndex reviewIndex = InvertedIndexSingleton.getInstance().getReviewInvertedIndex();
 		String value = req.getQueryStringMap().get("query");
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
 		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value after cleaning: " + value, 0);
-		ArrayList<CustomerEngagementFrequency> list = reviewIndex.getTermMap().get(value);
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Result Size:" + list.size(), 0);
 		StringBuilder html = new StringBuilder();
 		if(reviewIndex.getTermMap().containsKey(value)) {
 			html.append("<html>"); 
@@ -68,6 +62,7 @@ public class ReviewSearchHandler implements Handler{
 			html.append("<th style=\"border: 1px solid #dddddd;\">Overall Score</th>");
 			html.append("<th style=\"border: 1px solid #dddddd;\">Number of Occurences</th>");
 		    html.append("</tr>");
+		    ArrayList<CustomerEngagementFrequency> list = reviewIndex.getTermMap().get(value);
 			for(CustomerEngagementFrequency cef: list) {
 				Review review = (Review)cef.getCE();
 				html.append("<tr>");

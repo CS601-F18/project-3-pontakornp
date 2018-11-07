@@ -14,7 +14,34 @@ import java.net.*;
 
 public class HTTPClient {
 	
-	public static int PORT = 9090;
+	public static int PORT = 8080;
+	
+	public static String getRequestLine(String host, String method, String path, String query) {
+		try (
+				Socket sock = new Socket(host, PORT); //create a connection to the web server
+				OutputStream out = sock.getOutputStream(); //get the output stream from socket
+				InputStream instream = sock.getInputStream(); //get the input stream from socket
+				//wrap the input stream to make it easier to read from
+				BufferedReader reader = new BufferedReader(new InputStreamReader(instream))
+			) {
+			//send request
+			String request = "";
+			if(query.equals("")) {
+				request = getRequest(host, method, path);
+			} else {
+				request = getRequest(host, method, path, query);
+			}
+			out.write(request.getBytes());
+			out.flush();
+			//receive response
+			String line = reader.readLine();
+			String requestLine = line;
+			return requestLine;
+		} catch (IOException e) {
+			System.out.println("Error on socket or when reading input");
+		}
+		return "";
+	}
 	
 	public static String connect(String host, String method, String path, String query) {
 		StringBuffer buf = new StringBuffer();
@@ -35,10 +62,9 @@ public class HTTPClient {
 			out.write(request.getBytes());
 			out.flush();
 			//receive response
-			//note: a better approach would be to first read headers, determine content length
-			//then read the remaining bytes as a byte stream
 			int length = 0;
 			String line = reader.readLine();
+			String requestLine = line;
 			while(line != null) {	
 				if(line.toLowerCase().startsWith("content-length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
@@ -54,7 +80,7 @@ public class HTTPClient {
 		} catch (IOException e) {
 			System.out.println("Error on socket or when reading input");
 		}
-		return buf.toString();
+		return "";
 	}
 
 	private static String getRequest(String host, String method, String path) {

@@ -20,10 +20,8 @@ public class ChatHandler implements Handler{
 	public void handle(HTTPRequest req, HTTPResponse resp) {
 		//determine get or post]
 		if(req.getMethod().equals("GET")) {
-			ChatAndSearchApplicationLogger.write(Level.INFO, "GET Handle method: " + req.getMethod(), 0);
 			doGet(resp);
 		} else { // method == "POST"
-			ChatAndSearchApplicationLogger.write(Level.INFO, "POST Handle method: " + req.getMethod(), 0);
 			doPost(req, resp);
 		}
 	}
@@ -51,9 +49,7 @@ public class ChatHandler implements Handler{
 		String text = getText(req);
 		SlackPostMessageAPI slackAPI = new SlackPostMessageAPI(text);
 		String url = slackAPI.getTargetUrl();
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Slack Target URL: " + url, 0);
 		String urlParam = slackAPI.getUrlParameters();
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Slack URL Params: " + urlParam, 0);
 		try {
 			URL obj = new URL(url);
 			HttpsURLConnection connection = (HttpsURLConnection) obj.openConnection();
@@ -74,12 +70,10 @@ public class ChatHandler implements Handler{
 		        inputStream = connection.getInputStream();
 		        resp.setHeader(HTTPConstants.OK_HEADER);
 		        resp.setPage(getSuccessResponse());
-		        ChatAndSearchApplicationLogger.write(Level.INFO, "Success, Slack API Response Code: " + connection.getResponseCode(), 0);
 		    } else {
 		    	inputStream = connection.getErrorStream();
 		    	resp.setHeader(HTTPConstants.BAD_REQUEST_HEADER);
 		    	resp.setPage(getErrorResponse());
-		    	ChatAndSearchApplicationLogger.write(Level.INFO, "Bad Request, Slack API Response Code: " + connection.getResponseCode(), 0);
 		    }
 		} catch (IOException e) {
 			ChatAndSearchApplicationLogger.write(Level.WARNING, "Connection Error, Status Code: " + 400, 1);
@@ -102,7 +96,6 @@ public class ChatHandler implements Handler{
 	private String getText(HTTPRequest req) {
 		String text = "";
 		String value = req.getQueryStringMap().get("message");
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
 		try {
 			text = "Nat: " + value; // to distinguish Project three is coming from this user
 			text = URLEncoder.encode(text, "UTF-8");

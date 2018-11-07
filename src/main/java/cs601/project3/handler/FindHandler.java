@@ -21,11 +21,8 @@ public class FindHandler implements Handler {
 		//determine get or post
 		resp.setHeader(HTTPConstants.OK_HEADER);
 		if(req.getMethod().equals("GET")) {
-			ChatAndSearchApplicationLogger.write(Level.INFO, "GET Handle method: " + req.getMethod(), 0);
 			doGet(resp);
-			
 		} else { // method == "POST"
-			ChatAndSearchApplicationLogger.write(Level.INFO, "POST Handle method: " + req.getMethod(), 0);
 			doPost(req, resp);
 		}
 	}
@@ -36,7 +33,7 @@ public class FindHandler implements Handler {
 		html.append("<head><title>ASIN Search</title></head>");
 		html.append("<body>");
 		html.append("<form action=\"/find\" method=\"post\">");
-		html.append("Review search:<br/>");
+		html.append("ASIN search:<br/>");
 		html.append("<input type=\"text\" name=\"asin\"/><br/>");
 		html.append("<input type=\"submit\" value=\"Search\"/>");
 		html.append("</form>");
@@ -54,15 +51,12 @@ public class FindHandler implements Handler {
 		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
 		InvertedIndex qaIndex = indexSingleton.getQAInvertedIndex();
 		String value = req.getQueryStringMap().get("asin");
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
-//		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
 		String filteredValue = value.toLowerCase(); // clean the value from the query
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value after cleaning: " + value, 0);
 		StringBuilder html = new StringBuilder();
 		html.append("<html>");
 		html.append("<head><title>Review and QA documents</title></head>");
 		html.append("<body>");
-		html.append("<p>Search ASIN: " + value+ "</p>");
+		html.append("<p>Search ASIN: " + value + "</p>");
 		int count = 0;
 		if(reviewIndex.getASINMap().containsKey(filteredValue)) {
 			html.append("<table style=\"width:100%\">");
