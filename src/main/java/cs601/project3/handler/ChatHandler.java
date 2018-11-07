@@ -29,18 +29,19 @@ public class ChatHandler implements Handler{
 	}
 	
 	private void doGet(HTTPResponse resp) {
-		String html = "<html> " + 
-				"<head><title>Send Slack Message</title></head>" + 
-				"<body>" + 
-					"<form action=\"/slackbot\" method=\"post\">" +
-						"Message:<br/>" + 
-						"<input type=\"text\" name=\"message\"/><br/>" +
-						"<input type=\"submit\" value=\"Send\"/>" +
-					"</form>" +
-				"</body>" +
-				"</html>";
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<head><title>Send Slack Message</title></head>");
+		html.append("<body>");
+		html.append("<form action=\"/slackbot\" method=\"post\">");
+		html.append("Message:<br/>");
+		html.append("<input type=\"text\" name=\"message\"/><br/>");
+		html.append("<input type=\"submit\" value=\"Send\"/>");
+		html.append("</form>");
+		html.append("</body>");
+		html.append("</html>");
 		resp.setHeader(HTTPConstants.OK_HEADER);
-		resp.setPage(html);
+		resp.setPage(html.toString());
 	}
 	
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
@@ -112,22 +113,24 @@ public class ChatHandler implements Handler{
 	}
 	
 	private String getSuccessResponse() {
-		String html = "<html> " + 
-				"<head><title>Send Slack Message</title></head>" + 
-				"<body>" + 
-					"<p>Message sent!</p>" +
-				"</body>" +
-				"</html>";
-		return html;
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<head><title>Send Slack Message</title></head>");
+		html.append("<body>");
+		html.append("<p>Message sent!</p>");
+		html.append("</body>");
+		html.append("</html>");
+		return html.toString();
 	}
 	
 	private String getErrorResponse() {
-		String html = "<html> " + 
-				"<head><title>Send Slack Message</title></head>" + 
-				"<body>" + 
-					"<p>There's some problem when sending message. Please try again.</p>" +
-				"</body>" +
-				"</html>";
-		return html;
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<head><title>Send Slack Message</title></head>");
+		html.append("<body>");
+		html.append("<p>There's some problem when sending message. Please try again.</p>");
+		html.append("</body>");
+		html.append("</html>");
+		return html.toString();
 	}
 }

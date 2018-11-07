@@ -97,8 +97,8 @@ public class HTTPClient {
 		return new String(bout.toByteArray());
 	}
 	
-	public static void main(String[] args) {
-		PORT = 8080;
-		System.out.println(test("localhost", "GET", "/reviewsearch"));
-	}
+//	public static void main(String[] args) {
+//		PORT = 8080;
+//		System.out.println(test("localhost", "GET", "/reviewsearch"));
+//	}
 }

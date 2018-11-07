@@ -10,7 +10,10 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import cs601.project3.ChatAndSearchApplicationLogger;
+import cs601.project3.SearchApplication;
 import cs601.project3.handler.ErrorHandler;
 import cs601.project3.handler.Handler;
 
@@ -173,8 +176,6 @@ public class HTTPServerWorker implements Runnable{
 	private void sendResponse(HTTPResponse resp, PrintWriter writer) {
 		String headers = resp.getHeaders();
 		String page = resp.getPage();
-		ChatAndSearchApplicationLogger.write(Level.INFO, "HTML Headers Response: " + headers, 0);
-		ChatAndSearchApplicationLogger.write(Level.INFO, "HTML Page Response: " + page, 0);
 		writer.write(headers);
 		writer.write(page);
 	}

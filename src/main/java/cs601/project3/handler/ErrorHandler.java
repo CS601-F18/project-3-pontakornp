@@ -12,32 +12,35 @@ public class ErrorHandler implements Handler {
 		int statusCode = req.getStatusCode();
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Error Handler status code: " + statusCode, 0);
 		if(statusCode == 400) {
-			String page = "<html>" + 
-					"<head><title>400 Bad Request</title></head>" +
-					"<body>" +
-					"Invalid request." +
-					"</body>" +
-					"</html>";
+			StringBuilder html = new StringBuilder();
+			html.append("<html>"); 
+			html.append("<head><title>400 Bad Request</title></head>");
+			html.append("<body>");
+			html.append("<p>Invalid request.</p>");
+			html.append("</body>");
+			html.append("</html>");
 			resp.setHeader(HTTPConstants.BAD_REQUEST_HEADER);
-			resp.setPage(page);
+			resp.setPage(html.toString());
 		} else if(statusCode == 405) {
-			String page = "<html>" + 
-					"<head><title>405 Method Not Allowed</title></head>" +
-					"<body>" +
-					"Page not supported." +
-					"</body>" +
-					"</html>";
+			StringBuilder html = new StringBuilder();
+			html.append("<html>");
+			html.append("<head><title>405 Method Not Allowed</title></head>");
+			html.append("<body>");
+			html.append("<p>Page not supported.</p>");
+			html.append("</body>");
+			html.append("</html>");
 			resp.setHeader(HTTPConstants.METHOD_NOT_ALLOWED_HEADER);
-			resp.setPage(page);
+			resp.setPage(html.toString());
 		} else {
-			String page = "<html>" + 
-					"<head><title>404 Not Found</title></head>" +
-					"<body>" +
-					"Page not found." +
-					"</body>" +
-					"</html>";
+			StringBuilder html = new StringBuilder();
+			html.append("<html>");
+			html.append("<head><title>404 Not Found</title></head>");
+			html.append("<body>");
+			html.append("<p>Page not found.</p>");
+			html.append("</body>");
+			html.append("</html>");
 			resp.setHeader(HTTPConstants.NOT_FOUND_HEADER);
-			resp.setPage(page);
+			resp.setPage(html.toString());
 		}
 	}
 }

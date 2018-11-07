@@ -1,6 +1,9 @@
 package cs601.project3.handler;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import cs601.project3.ChatAndSearchApplicationLogger;
 import cs601.project3.http.HTTPConstants;
@@ -25,60 +28,69 @@ public class ReviewSearchHandler implements Handler{
 	}
 	
 	private void doGet(HTTPResponse resp) {
-		String html = "<html> " + 
-				"<head><title>Review Search</title></head>" + 
-				"<body>" + 
-					"<form action=\"/reviewsearch\" method=\"post\">" +
-						"Review search:<br/>" + 
-						"<input type=\"text\" name=\"query\"/><br/>" +
-						"<input type=\"submit\" value=\"Search\"/>" +
-					"</form>" +
-				"</body>" +
-				"</html>";
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<head><title>Review Search</title></head>");
+		html.append("<body>");
+		html.append("<form action=\"/reviewsearch\" method=\"post\">");
+		html.append("Review search:<br/>");
+		html.append("<input type=\"text\" name=\"query\"/><br/>");
+		html.append("<input type=\"submit\" value=\"Search\"/>");
+		html.append("</form>");
+		html.append("</body>");
+		html.append("</html>");
 		resp.setHeader(HTTPConstants.OK_HEADER);
-		resp.setPage(html);
+		resp.setPage(html.toString());
 	}
 	
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
 		if(!isParamKeyValid(req, resp)) {
 			return;
 		}
-		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
-		InvertedIndex reviewIndex = indexSingleton.getReviewInvertedIndex();
+		InvertedIndex reviewIndex = InvertedIndexSingleton.getInstance().getReviewInvertedIndex();
 		String value = req.getQueryStringMap().get("query");
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value: " + value, 0);
 		value = value.replaceAll("[^A-Za-z0-9]", "").toLowerCase(); // clean the value from the query
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Main param's value after cleaning: " + value, 0);
-		int resultSize = reviewIndex.getTermMap().get(value).size();
-		ChatAndSearchApplicationLogger.write(Level.INFO, "Result Size:" + resultSize, 0);
-		String html = "<html> " + 
-					"<head><title>Review Search Results</title></head>" + 
-					"<body>" + 
-						"<p>Search term: " + value + "</p>" +
-						"<table style=\"width:100%\">" +
-							"<tr>" +
-							    "<th style=\"border: 1px solid #dddddd;\">ASIN</th>" +
-							    "<th style=\"border: 1px solid #dddddd;\">Reviewer ID</th>" +
-							    "<th style=\"border: 1px solid #dddddd;\">Review Text</th>" +
-							    "<th style=\"border: 1px solid #dddddd;\">Overall Score</th>" +
-							    "<th style=\"border: 1px solid #dddddd;\">Number of Occurences</th>" +
-						    "</tr>";
-		for(int i = 0; i < resultSize; i++) {
-			CustomerEngagementFrequency cef = reviewIndex.getTermMap().get(value).get(i);
-			Review review = (Review)cef.getCE();
-			html +=	"<tr>" +
-				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getASIN() + "</th>" +
-				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getReviewerID() + "</td>" +
-				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getReviewText() + "</td>" +
-				    	"<td style=\"border: 1px solid #dddddd;\">" + review.getOverall() + "</td>" +
-				    	"<td style=\"border: 1px solid #dddddd;\">" + cef.getFreq() + "</td>" +
-			    	"</tr>";
+		ArrayList<CustomerEngagementFrequency> list = reviewIndex.getTermMap().get(value);
+		ChatAndSearchApplicationLogger.write(Level.INFO, "Result Size:" + list.size(), 0);
+		StringBuilder html = new StringBuilder();
+		if(reviewIndex.getTermMap().containsKey(value)) {
+			html.append("<html> "); 
+			html.append("<head><title>Review Search Results</title></head>"); 
+			html.append("<body>"); 
+			html.append("<p>Search term: " + value + "</p>");
+			html.append("<table style=\"width:100%\">");
+			html.append("<tr>");
+			html.append("<th style=\"border: 1px solid #dddddd;\">ASIN</th>");
+			html.append("<th style=\"border: 1px solid #dddddd;\">Reviewer ID</th>");
+			html.append("<th style=\"border: 1px solid #dddddd;\">Review Text</th>");
+			html.append("<th style=\"border: 1px solid #dddddd;\">Overall Score</th>");
+			html.append("<th style=\"border: 1px solid #dddddd;\">Number of Occurences</th>");
+		    html.append("</tr>");
+			for(CustomerEngagementFrequency cef: list) {
+				Review review = (Review)cef.getCE();
+				html.append("<tr>");
+				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getASIN() + "</td>");
+			    html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getReviewerID() + "</td>");
+			    html.append("<td style=\"border: 1px solid #dddddd;\">" + StringEscapeUtils.escapeHtml4(review.getReviewText()) + "</td>");
+			    html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getOverall() + "</td>");
+			    html.append("<td style=\"border: 1px solid #dddddd;\">" + cef.getFreq() + "</td>");
+		    	html.append("</tr>");
+			}
+			html.append("</table>");
+			html.append("</body>");
+			html.append("</html>");
+		} else {
+			html.append("<html>");
+			html.append("<head><title>Review Search Results</title></head>");
+			html.append("<body>");
+			html.append("<p>Search not found.</p>");
+			html.append("</body>");
+			html.append("</html>");
 		}
-		html += "</table>" +
-				"</body>" +
-				"</html>";
 		resp.setHeader(HTTPConstants.OK_HEADER);
-		resp.setPage(html);
+		resp.setPage(html.toString());
 	}
 	
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
