@@ -90,7 +90,7 @@ public class ChatHandler implements Handler{
 	
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("message") || req.getQueryStringMap().get("message").equals("")) {
-			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map not conain main param or value is null", 0);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map does not contain main param or value is null", 0);
 			req.setStatusCode(400);
 			Handler handler = new ErrorHandler();
 			handler.handle(req, resp);

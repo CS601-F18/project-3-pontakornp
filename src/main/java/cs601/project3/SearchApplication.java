@@ -10,10 +10,8 @@ public class SearchApplication {
 		ChatAndSearchApplicationLogger.initialize(ChatApplication.class.getName(), "searchApplicationLog.txt");
 		int port = 8080;
 		HTTPServer server = new HTTPServer(port);
-		
 		// build invertedindex
 		InvertedIndexSingleton indexSingleton = InvertedIndexSingleton.getInstance();
-
 		//The request GET /reviewsearch will be dispatched to the 
 		//handle method of the ReviewSearchHandler.
 		server.addMapping("/reviewsearch", new ReviewSearchHandler());

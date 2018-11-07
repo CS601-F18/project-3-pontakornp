@@ -35,12 +35,10 @@ public class HTTPServerWorker implements Runnable{
 			String requestLine = oneLine(instream);
 			headers += requestLine + "\n";
 			String line = oneLine(instream);
-			headers += line + "\n";
 			int length = 0;
 			while(line != null && !line.trim().isEmpty()) {
 				headers += line + "\n";
 				line = oneLine(instream);
-				ChatAndSearchApplicationLogger.write(Level.INFO, line, 0);
 				if(line == null || line.trim().isEmpty() || line.equals("")) {
 					break;
 				}
@@ -176,6 +174,10 @@ public class HTTPServerWorker implements Runnable{
 	private void sendResponse(HTTPResponse resp, PrintWriter writer) {
 		String headers = resp.getHeaders();
 		String page = resp.getPage();
+		byte[] bytes  = page.getBytes();
+		int contentLength = bytes.length;
+		String contentLengthLine = "Content-Length: " + contentLength + "\n";
+		headers += contentLengthLine + "\r\n";
 		writer.write(headers);
 		writer.write(page);
 	}

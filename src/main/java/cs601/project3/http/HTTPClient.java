@@ -3,6 +3,8 @@ package cs601.project3.http;
 import java.util.*;
 import java.util.logging.Level;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 import cs601.project3.ChatAndSearchApplicationLogger;
 
 import java.io.*;
@@ -32,39 +34,52 @@ public class HTTPClient {
 			//receive response
 			//note: a better approach would be to first read headers, determine content length
 			//then read the remaining bytes as a byte stream
-//			String line = reader.readLine();
-//			while(line != null) {				
-//				buf.append(line + "\n"); //append the newline stripped by readline
-//				line = reader.readLine();
-//			}
-//			
-//			
-			
-			String headers = "";
-			String requestLine = oneLine(instream);
-			headers += requestLine + "\n";
-			String line = oneLine(instream);
-			headers += line + "\n";
 			int length = 0;
-			while(line != null && !line.trim().isEmpty()) {
-				headers += line + "\n";
-				line = oneLine(instream);
-				if(line == null || line.trim().isEmpty() || line.equals("")) {
-					break;
-				}
+			String line = reader.readLine();
+			while(line != null) {	
+				
 				if(line.toLowerCase().startsWith("content-length:")) {
 					length = Integer.parseInt(line.split(":")[1].trim());
 				}
+				buf.append(line + "\n"); //append the newline stripped by readline
+				if(line.equals("")) {
+					line = reader.readLine();
+					break;
+				}
+				line = reader.readLine();
 			}
-			System.out.println(headers);
-			byte[] bytes = new byte[length];
-			int read = sock.getInputStream().read(bytes);
-			while(read < length) {
-				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
-			}
-			System.out.println("Bytes expected: " + length + " Bytes read: " + read);
-			String body = new String(bytes);
-			return body;
+			return line;
+			
+//			String headers = "";
+//			String requestLine = oneLine(instream);
+//			headers += requestLine + "\n";
+//			String line = oneLine(instream);
+//			int length = 0;
+//			System.out.println("whyyy");
+//			while(line != null && !line.trim().isEmpty()) {
+//				headers += line + "\n";
+//				line = oneLine(instream);
+//				System.out.println(line);
+////				if(line == null || line.trim().isEmpty() || line.equals("")) {
+////					System.out.println("why");
+////					break;
+////				}
+//				if(line.toLowerCase().startsWith("content-length:")) {
+//					length = Integer.parseInt(line.split(":")[1].trim());
+//					System.out.println("length " + line);
+//				} else {
+//					System.out.println("not content-length " + line);
+//				}
+//			}
+//			System.out.println(headers);
+//			byte[] bytes = new byte[length];
+//			int read = sock.getInputStream().read(bytes);
+//			while(read < length) {
+//				read += sock.getInputStream().read(bytes, read, (bytes.length - read));
+//			}
+//			System.out.println("Bytes expected: " + length + " Bytes read: " + read);
+//			String body = new String(bytes);
+//			return body;
 
 		} catch (IOException e) {
 			System.out.println("Error on socket or when reading input");

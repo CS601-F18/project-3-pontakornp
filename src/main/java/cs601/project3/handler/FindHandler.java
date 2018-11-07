@@ -30,15 +30,20 @@ public class FindHandler implements Handler {
 		}
 	}
 	
-	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
-		if (!req.getQueryStringMap().containsKey("asin") || req.getQueryStringMap().get("asin").equals("")) {
-			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map not conain main param or value is null", 0);
-			req.setStatusCode(400);
-			Handler handler = new ErrorHandler();
-			handler.handle(req, resp);
-			return false;
-		}
-		return true;
+	private void doGet(HTTPResponse resp) {
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<head><title>ASIN Search</title></head>");
+		html.append("<body>");
+		html.append("<form action=\"/find\" method=\"post\">");
+		html.append("Review search:<br/>");
+		html.append("<input type=\"text\" name=\"asin\"/><br/>");
+		html.append("<input type=\"submit\" value=\"Search\"/>");
+		html.append("</form>");
+		html.append("</body>");
+		html.append("</html>");
+		resp.setHeader(HTTPConstants.OK_HEADER);
+		resp.setPage(html.toString());
 	}
 	
 	private void doPost(HTTPRequest req, HTTPResponse resp) {
@@ -70,12 +75,6 @@ public class FindHandler implements Handler {
 			ArrayList<CustomerEngagement> asinReviewList = reviewIndex.getASINMap().get(filteredValue);
 			for(CustomerEngagement ce: asinReviewList) {
 				Review review = (Review)ce;
-//				html.append("<tr>");
-//				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getASIN() + "</td>");
-//				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getReviewerID() + "</td>");
-//				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getReviewText() + "</td>");
-//				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getOverall() + "</td>");
-//				html.append("</tr>");
 				html.append("<tr>");
 				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getASIN() + "</td>");
 				html.append("<td style=\"border: 1px solid #dddddd;\">" + review.getReviewerID() + "</td>");
@@ -116,18 +115,14 @@ public class FindHandler implements Handler {
 		resp.setPage(html.toString());
 	}
 	
-	private void doGet(HTTPResponse resp) {
-		String html = "<html> " + 
-				"<head><title>ASIN Search</title></head>" + 
-				"<body>" + 
-					"<form action\"/find\" method=\"post\">" +
-						"ASIN search:<br>" + 
-						"<input type=\"text\" name=\"asin\"><br>" +
-						"<input type=\"submit\" value=\"Search\">" +
-					"</form>" +
-				"</body>" +
-				"</html>";
-		resp.setHeader(HTTPConstants.OK_HEADER);
-		resp.setPage(html);
+	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
+		if (!req.getQueryStringMap().containsKey("asin") || req.getQueryStringMap().get("asin").equals("")) {
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map does not contain main param or value is null", 0);
+			req.setStatusCode(400);
+			Handler handler = new ErrorHandler();
+			handler.handle(req, resp);
+			return false;
+		}
+		return true;
 	}
 }

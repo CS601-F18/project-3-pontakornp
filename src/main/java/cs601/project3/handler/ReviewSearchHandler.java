@@ -56,7 +56,7 @@ public class ReviewSearchHandler implements Handler{
 		ChatAndSearchApplicationLogger.write(Level.INFO, "Result Size:" + list.size(), 0);
 		StringBuilder html = new StringBuilder();
 		if(reviewIndex.getTermMap().containsKey(value)) {
-			html.append("<html> "); 
+			html.append("<html>"); 
 			html.append("<head><title>Review Search Results</title></head>"); 
 			html.append("<body>"); 
 			html.append("<p>Search term: " + value + "</p>");
@@ -96,7 +96,7 @@ public class ReviewSearchHandler implements Handler{
 	private boolean isParamKeyValid(HTTPRequest req, HTTPResponse resp) {
 		if (!req.getQueryStringMap().containsKey("query") || req.getQueryStringMap().get("query").equals("")) {
 			req.setStatusCode(400);
-			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map not conain main param or value is null", 0);
+			ChatAndSearchApplicationLogger.write(Level.INFO, "Query string map does not contain main param or value is null", 0);
 			Handler handler = new ErrorHandler();
 			handler.handle(req, resp);
 			return false;
